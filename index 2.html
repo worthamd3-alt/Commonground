@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Break Room — Powered by CommonGround</title>
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body { background: #EFEBE2; font-family: system-ui, sans-serif; }
+  #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; color: #1E3A32; font-weight: 600; }
+</style>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script crossorigin src="https://unpkg.com/lucide-react@0.383.0/dist/umd/lucide-react.js"></script>
+</head>
+<body>
+<div id="root"><div id="loading">Loading The Break Room…</div></div>
+<script type="text/babel" data-presets="react">
+const { useState } = React;
+const LR = window.LucideReact || window.lucideReact || {};
+const { Home, Users, MessageCircle, User, Megaphone, Car, Music, Palette, Trophy, Mountain, UtensilsCrossed, BookOpen, Dumbbell, MapPin, GraduationCap, Building2, Plus, Check, ChevronLeft, ChevronDown, Send, Search, Pin, Hash, Heart, Sparkles, Bell, Lock, ShieldCheck, Globe, Info, Flag, HeartHandshake, Eye, Clock, Target, Fish, Medal, Waves, Bike, Truck, Guitar, Gamepad2, Sprout, Dog, Layers, LayoutGrid } = LR;
+
+
+const c = {
+  paper: "#EFEBE2", card: "#FFFFFF", ink: "#1C1B16", sub: "#77746A",
+  faint: "#A6A297", pine: "#1E3A32", pine2: "#2E5247", honey: "#E19A38",
+  honeySoft: "#F3E2C4", line: "#E8E3D8", secure: "#14231E", secureHi: "#4FB68A",
+  flag: "#C0563E",
+};
+const display = "'Bricolage Grotesque', system-ui, sans-serif";
+const body = "'Hanken Grotesk', system-ui, sans-serif";
+
+const INTERESTS = [
+  { id: "hunting", name: "Hunting", icon: Target, color: "#6B7A3A", members: 27, subs: ["Deer", "Turkey", "Waterfowl", "Other"] },
+  { id: "fishing", name: "Fishing", icon: Fish, color: "#2E7DA6", members: 33 },
+  { id: "sports", name: "Sports", icon: Trophy, color: "#3E7C57", members: 41, subs: ["Basketball", "Football", "Golf", "Softball", "Volleyball", "Tennis"] },
+  { id: "youth", name: "Youth Sports", icon: Medal, color: "#C77D2E", members: 38, subs: ["Baseball", "Softball", "Volleyball", "Gymnastics", "Soccer", "Swimming & Lessons"] },
+  { id: "water", name: "Water Sports", icon: Waves, color: "#2E8A9E", members: 21, subs: ["Kayaking", "Water Skiing", "Boating", "Paddleboarding", "Wakeboarding"] },
+  { id: "pickle", name: "Pickleball", icon: Dumbbell, color: "#DD6455", members: 34 },
+  { id: "rides", name: "Running & Cycling", icon: Bike, color: "#C0563E", members: 29, subs: ["Marathon Running", "Road Cycling", "Mountain Biking", "Trail Running"] },
+  { id: "moto", name: "Motorcycles & Off-Road", icon: Truck, color: "#7A5A3A", members: 19, subs: ["Motorcycles", "4-Wheeling / ATVs"] },
+  { id: "cars", name: "Classic Cars", icon: Car, color: "#B4532F", members: 22 },
+  { id: "music", name: "Musicians", icon: Guitar, color: "#3D6AA6", members: 28, subs: ["Guitar", "Piano / Keys", "Vocals", "Band / Ensemble"] },
+  { id: "gaming", name: "Gaming & Esports", icon: Gamepad2, color: "#6A4FA0", members: 24 },
+  { id: "mahjong", name: "Mahjong", icon: LayoutGrid, color: "#3B8C7A", members: 9 },
+  { id: "garden", name: "Gardening", icon: Sprout, color: "#4C7A45", members: 26 },
+  { id: "pets", name: "Pets & Animals", icon: Dog, color: "#B07A2E", members: 31, subs: ["Dog Training", "Dog Breeding", "Cat Lovers", "Equine / Horses"] },
+  { id: "outdoors", name: "Outdoors", icon: Mountain, color: "#4C6B39", members: 39, subs: ["Hiking", "Camping", "Bird Watching"] },
+  { id: "art", name: "Art & Crafts", icon: Palette, color: "#7A54A0", members: 17 },
+  { id: "food", name: "Foodies", icon: UtensilsCrossed, color: "#CE8A2C", members: 52 },
+  { id: "books", name: "Book Club", icon: BookOpen, color: "#2E8A85", members: 14 },
+  { id: "collect", name: "Collectors", icon: Layers, color: "#8A6A4A", members: 12, subs: ["Stamps", "Coins", "Other"] },
+];
+const DEPARTMENTS = [
+  { id: "surgery", name: "Surgery Center", members: 24 },
+  { id: "billing", name: "Billing", members: 19 },
+  { id: "workcomp", name: "Work Comp", members: 8 },
+  { id: "front", name: "Front Desk / Appointments", members: 46 },
+  { id: "physadmin", name: "Physicians / Administration", members: 21 },
+  { id: "vendors", name: "Vendors", members: 12 },
+  { id: "dme", name: "DME", members: 9 },
+  { id: "purchasing", name: "Purchasing", members: 6 },
+  { id: "imaging", name: "Imaging", members: 18 },
+  { id: "pt", name: "Physical Therapy", members: 31 },
+  { id: "nursing", name: "Nursing / Clinical", members: 33 },
+  { id: "records", name: "Medical Records", members: 11 },
+  { id: "marketing", name: "Marketing", members: 6 },
+  { id: "ithr", name: "IT & HR", members: 10 },
+];
+const AUDIENCES = ["Everyone", ...DEPARTMENTS.map((d) => d.name)];
+const PENDING = [
+  { name: "Jordan Pace", role: "Scheduler", dept: "Front Desk / Appointments" },
+  { name: "Jordan Pace", role: "Scheduler", dept: "Surgery Center" },
+  { name: "Lena Ortiz", role: "Surgical Tech", dept: "Surgery Center" },
+  { name: "Cade Nichols", role: "AR Specialist", dept: "Billing" },
+];
+const ROLES3 = ["Employee", "Manager", "Admin"];
+const ROLE_COLOR = { Employee: "#8A9690", Manager: "#5A8FCB", Admin: "#E19A38" };
+const ROLE_SUMMARY = [
+  { role: "Employee", icon: User, note: "Messaging + optional social. Can post to the feed." },
+  { role: "Department Manager", icon: ShieldCheck, note: "Approves their department's members, posts official to their department, handles reports." },
+  { role: "Admin / HR", icon: Lock, note: "Full control: companywide announcements, account provisioning, audit log, all approvals." },
+];
+const MEMBERS_SEED = [
+  { name: "Worth Ainsworth", dept: "Marketing", role: "Admin", active: true },
+  { name: "Angela Pope", dept: "Nursing / Clinical", role: "Manager", active: true },
+  { name: "Marcus Bell", dept: "Physical Therapy", role: "Employee", active: true },
+  { name: "Dana Whitfield", dept: "Front Desk / Appointments", role: "Manager", active: true },
+  { name: "Tyler Fox", dept: "Imaging", role: "Employee", active: true },
+];
+const ANNOUNCEMENTS = [
+  { official: true, pinned: true, from: "People & Culture", role: "HR", time: "1h", audience: "Everyone", requireAck: true,
+    title: "Updated patient-privacy policy - please acknowledge",
+    body: "We've refreshed the confidentiality policy. Read it and tap Acknowledge so we have a record that every team member has seen it.",
+    readBy: ["Angela Pope", "Marcus Bell", "Dana Whitfield"], notYet: ["Kayla Duncan", "Tyler Fox", "Rosa Jimenez", "Reggie Sims", "Sam Odom"] },
+  { official: true, from: "SOG Administration", role: "Company", time: "2h", audience: "Everyone",
+    title: "Tupelo expansion - new PT wing opens Aug 18",
+    body: "Doubling our physical therapy footprint at the Tupelo campus. Staff tours the week prior - sign up through your department lead.",
+    readBy: ["Angela Pope", "Kayla Duncan", "Tyler Fox", "Marcus Bell", "Dana Whitfield"], notYet: ["Rosa Jimenez", "Reggie Sims", "Sam Odom"] },
+  { official: true, from: "Cody Atkins", role: "COO", time: "5h", audience: "Everyone",
+    title: "Pickleball Alliance kickoff - Saturday, Oxford courts",
+    body: "Free community clinic this Saturday, 9am. All staff and families welcome, no experience needed.",
+    readBy: ["Angela Pope", "Kayla Duncan", "Marcus Bell", "Reggie Sims"], notYet: ["Tyler Fox", "Dana Whitfield", "Rosa Jimenez", "Sam Odom"] },
+  { official: true, from: "People & Culture", role: "HR", time: "1d", audience: "Everyone",
+    title: "Flu shots at every location next week", body: "Walk up anytime Mon-Thu. No appointment, on the clock.",
+    readBy: ["Dana Whitfield", "Sam Odom", "Rosa Jimenez", "Angela Pope", "Kayla Duncan", "Tyler Fox"], notYet: ["Marcus Bell", "Reggie Sims"] },
+];
+const SEED_POSTS = [
+  { author: "Angela Pope", dept: "Nursing / Clinical", audience: "Everyone", time: "1h",
+    text: "Leftover birthday cake in the Oxford break room \u{1F382} grab a slice before it disappears" },
+  { author: "Marcus Bell", dept: "Physical Therapy", audience: "Physical Therapy", time: "3h",
+    text: "PT team - moved the 2pm evals to Thursday. Check the board before you book." },
+];
+const PEOPLE = [
+  { name: "Angela Pope", role: "Medical Assistant", dept: "Nursing / MA", loc: "Oxford", school: "Northeast MS CC", tags: ["pickle", "food"],
+    details: { pickle: "4.0 level, compete in tournaments around North Mississippi. Looking for someone to drill or take lessons with on weeknights.", food: "Meal-prep obsessed and unofficial potluck coordinator. Always testing new recipes on the team." } },
+  { name: "Kayla Duncan", role: "Marketing Coordinator", dept: "Marketing", loc: "Oxford", school: "Ole Miss", tags: ["pickle", "art"],
+    details: { pickle: "3.5 and climbing. Just learned to dink. Looking for a patient partner to rally with after work.", art: "Pottery and ceramics - throwing on the wheel most weekends. Happy to show anyone the basics." } },
+  { name: "Tyler Fox", role: "Imaging Tech", dept: "Imaging", loc: "Tupelo", school: "Ole Miss", tags: ["cars", "music"],
+    details: { cars: "Restoring a '69 Camaro, second project car. Bring yours to the lot Friday and let's talk shop.", music: "Lead guitar in a classic-rock cover band. Looking for a drummer who can commit to weekends." } },
+  { name: "Marcus Bell", role: "Physical Therapist", dept: "Physical Therapy", loc: "Oxford", school: "Mississippi State", tags: ["sports", "outdoors"],
+    details: { sports: "Run the Tuesday-night rec basketball league. We need one more for 5-on-5 - all skill levels welcome.", outdoors: "Bass fishing and deer season. Sardis Lake most weekends if you want to tag along." } },
+  { name: "Dana Whitfield", role: "Front Desk Lead", dept: "Front Desk", loc: "Tupelo", school: "Itawamba CC", tags: ["music", "food"],
+    details: { music: "Sing alto in my church choir and mess around on piano. Always down to swap playlists.", food: "Certified BBQ judge, no exaggeration. Ask me where to actually eat in Tupelo." } },
+  { name: "Rosa Jimenez", role: "Billing Specialist", dept: "Billing", loc: "Calhoun City", school: "Delta State", tags: ["art", "books"],
+    details: { art: "Watercolor and hand-lettering. I sell prints at the Calhoun City market on Saturdays.", books: "Two books a week, mostly mystery. Trying to start a lunch-hour book club - join me." } },
+  { name: "Reggie Sims", role: "Surgery Scheduler", dept: "Surgery", loc: "Columbus", school: "Alcorn State", tags: ["sports", "music"],
+    details: { sports: "Ole Miss football die-hard. Our tailgate crew always has room and always has food.", music: "DJ on the side - weddings and parties. Hit me up if you've got an event coming." } },
+  { name: "Sam Odom", role: "Administration", dept: "Administration", loc: "Tupelo", school: "Millsaps", tags: ["books", "outdoors"],
+    details: { books: "Sci-fi and history mostly. Happy to lend from my shelf - it's overflowing.", outdoors: "Backpacking and trail running. Planning a Sipsey Wilderness trip this fall, could use company." } },
+];
+const THREADS = [
+  { id: "t1", name: "Classic Cars", group: true, color: "#B4532F", icon: Car, last: "Tyler: Bringing the '69 Camaro Friday \u{1F527}", unread: 3 },
+  { id: "t2", name: "Dana Whitfield", last: "Sounds good - see you at the Tupelo tour!", unread: 0 },
+  { id: "t3", name: "Oxford Front Desk", group: true, color: c.pine, icon: Hash, last: "Angela: covered the 8am, all good", unread: 0 },
+  { id: "t4", name: "Cody Atkins", last: "Appreciate you jumping on the Alliance thing.", unread: 1 },
+];
+const SECURE_SCOPES = [
+  { id: "team", label: "My care team", note: "8 people", min: true },
+  ...DEPARTMENTS.map((d) => ({ id: "dept_" + d.id, label: d.name, note: d.members + " people", min: true })),
+  { id: "everyone", label: "Everyone", note: "all staff" },
+];
+const SECURE_SEED = [
+  { who: "You", me: true, text: "Bobby S. - walk-in, on his way. Flag me when he's checked in.", time: "9:32", age: "3h 09m", reminded: 2, next: "5:00 PM" },
+  { who: "Dana W.", text: "Got him at the front - rooming now.", time: "9:38" },
+];
+const GUIDELINES = [
+  { icon: HeartHandshake, color: c.honey, title: "Connect over shared interests", body: "Find teammates who love what you love - and build real friendships at work." },
+  { icon: Sparkles, color: "#3E7C57", title: "Keep it respectful and professional", body: "Good company and good conversation - the way you'd want to be treated." },
+  { icon: Flag, color: c.flag, title: "See something off? Report it", body: "Every profile and message has a report button. An admin reviews it." },
+  { icon: Lock, color: c.secureHi, title: "Never post patient or confidential info", body: "Anything sensitive goes in Secure Messaging - keep it out of posts, chats, and profiles." },
+];
+
+const initials = (n) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
+const first = (n) => n.split(" ")[0];
+const tagById = (id) => INTERESTS.find((i) => i.id === id);
+const personByName = (n) => PEOPLE.find((p) => p.name === n);
+
+function Avatar({ name, size = 40, bg = c.pine }) {
+  return (<div style={{ width: size, height: size, background: bg, color: "#F5F1E8", borderRadius: 999, fontFamily: display, fontWeight: 600, fontSize: size * 0.36, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, letterSpacing: "0.02em" }}>{initials(name)}</div>);
+}
+function Chip({ interest, active }) {
+  const Icon = interest.icon;
+  return (<span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px 3px 7px", borderRadius: 999, fontSize: 12, fontWeight: 600, color: active ? "#fff" : interest.color, background: active ? interest.color : interest.color + "18", fontFamily: body }}><Icon size={12} strokeWidth={2.4} />{interest.name}</span>);
+}
+function Badge({ children, bg, color }) {
+  return (<span style={{ fontFamily: body, fontSize: 10, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 999, background: bg, color }}>{children}</span>);
+}
+
+function Onboarding({ done }) {
+  const [depts, setDepts] = useState([]);
+  const toggleDept = (name) => setDepts((p) => p.includes(name) ? p.filter((x) => x !== name) : [...p, name]);
+  const [step, setStep] = useState(1);
+  if (step === 2) return (
+    <div style={{ height: "100%", overflowY: "auto", background: c.paper, display: "flex", flexDirection: "column" }}>
+      <div style={{ background: c.pine, padding: "30px 22px 28px", color: "#F5F1E8", textAlign: "center" }}>
+        <div style={{ width: 52, height: 52, borderRadius: 15, background: "rgba(79,182,138,0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}><Check size={26} color={c.secureHi} strokeWidth={3} /></div>
+        <div style={{ fontFamily: display, fontWeight: 800, fontSize: 23, letterSpacing: "-0.01em" }}>You're set for messaging</div>
+        <div style={{ fontFamily: body, fontSize: 13, opacity: 0.82, marginTop: 8, lineHeight: 1.45 }}>Your {depts.length} department{depts.length > 1 ? "s are" : " is"} pending each manager's approval - you'll be reachable as soon as they say yes.</div>
+      </div>
+      <div style={{ padding: "22px 20px", flex: 1 }}>
+        <div style={{ fontFamily: body, fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: c.honey, marginBottom: 8 }}>Optional \u00b7 your call</div>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 20, color: c.ink, marginBottom: 8, lineHeight: 1.15 }}>Want to set up your community profile?</div>
+        <div style={{ fontFamily: body, fontSize: 13.5, color: c.sub, lineHeight: 1.5, marginBottom: 20 }}>Add a few interests and a little about yourself so coworkers can find their people. Totally optional - do it now, later, or never.</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <button onClick={() => done("me")} style={{ width: "100%", background: c.honey, border: "none", borderRadius: 14, padding: "14px 0", fontFamily: display, fontWeight: 700, fontSize: 15, color: c.pine, cursor: "pointer" }}>Set up my profile</button>
+          <button onClick={() => done()} style={{ width: "100%", background: c.card, border: "1px solid " + c.line, borderRadius: 14, padding: "13px 0", fontFamily: display, fontWeight: 700, fontSize: 15, color: c.sub, cursor: "pointer" }}>Skip for now</button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 16, fontFamily: body, fontSize: 11.5, color: c.faint, justifyContent: "center" }}><Info size={12} /> You can set this up anytime from your profile.</div>
+      </div>
+    </div>
+  );
+  return (
+    <div style={{ height: "100%", overflowY: "auto", background: c.paper }}>
+      <div style={{ background: c.pine, padding: "28px 22px 30px", color: "#F5F1E8", textAlign: "center" }}>
+        <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(245,241,232,0.5)", marginBottom: 16 }}>Powered by CommonGround</div>
+        <div style={{ width: 54, height: 54, borderRadius: 16, background: c.honey, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }}><HeartHandshake size={28} color={c.pine} strokeWidth={2.2} /></div>
+        <div style={{ fontFamily: body, fontSize: 13, opacity: 0.75, marginBottom: 2 }}>Welcome to</div>
+        <div style={{ fontFamily: display, fontWeight: 800, fontSize: 30, letterSpacing: "-0.02em", lineHeight: 1 }}>The Break Room</div>
+        <div style={{ fontFamily: body, fontSize: 13.5, opacity: 0.82, marginTop: 8 }}>Where the people of SOG get to know one another.</div>
+      </div>
+      <div style={{ padding: "20px 18px 16px" }}>
+        <div style={{ fontFamily: body, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: c.faint, marginBottom: 14 }}>A few house rules</div>
+        {GUIDELINES.map((g, i) => {
+          const Icon = g.icon;
+          return (<div key={i} style={{ display: "flex", gap: 13, marginBottom: 18 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: g.color + "1A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={20} color={g.color} strokeWidth={2.2} /></div>
+            <div><div style={{ fontFamily: display, fontWeight: 600, fontSize: 15, color: c.ink, marginBottom: 2 }}>{g.title}</div><div style={{ fontFamily: body, fontSize: 13, color: c.sub, lineHeight: 1.4 }}>{g.body}</div></div>
+          </div>);
+        })}
+      </div>
+      <div style={{ padding: "4px 18px 10px" }}>
+        <div style={{ fontFamily: body, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: c.faint, marginBottom: 10 }}>Your department(s)</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 10 }}>
+          {DEPARTMENTS.map((d) => { const sel = depts.includes(d.name); return (
+            <button key={d.id} onClick={() => toggleDept(d.name)} style={{ display: "flex", alignItems: "center", gap: 5, border: "1px solid " + (sel ? c.pine : c.line), cursor: "pointer", fontFamily: body, fontSize: 12, fontWeight: 600, padding: "6px 11px", borderRadius: 999, background: sel ? c.pine : c.card, color: sel ? "#F5F1E8" : c.sub }}>{sel && <Check size={11} strokeWidth={3} />}{d.name}</button>
+          ); })}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontFamily: body, fontSize: 11.5, color: c.faint }}><ShieldCheck size={12} color="#3E7C57" /> Join as many as you belong to. Each department's manager approves you for theirs.</div>
+      </div>
+      <div style={{ padding: "10px 18px 24px" }}>
+        <div style={{ background: c.honeySoft, borderRadius: 12, padding: "13px 14px", marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 9, marginBottom: 9 }}>
+            <MessageCircle size={16} color="#7A5418" style={{ marginTop: 1, flexShrink: 0 }} />
+            <div style={{ fontFamily: body, fontSize: 13, color: "#7A5418", lineHeight: 1.4 }}><b style={{ fontWeight: 700 }}>Messaging keeps everyone in the loop.</b> It's how SOG communicates, so every teammate is here and reachable.</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 9 }}>
+            <Sparkles size={16} color="#7A5418" style={{ marginTop: 1, flexShrink: 0 }} />
+            <div style={{ fontFamily: body, fontSize: 13, color: "#7A5418", lineHeight: 1.4 }}><b style={{ fontWeight: 700 }}>The social side is all yours.</b> Profile, interests, groups - share as much or as little as you like.</div>
+          </div>
+        </div>
+        <button onClick={() => setStep(2)} disabled={depts.length === 0} style={{ width: "100%", background: depts.length ? c.honey : c.line, border: "none", borderRadius: 14, padding: "14px 0", fontFamily: display, fontWeight: 700, fontSize: 15.5, color: depts.length ? c.pine : c.faint, cursor: depts.length ? "pointer" : "default" }}>{depts.length ? "Request access to " + depts.length + " department" + (depts.length > 1 ? "s" : "") : "Choose your department(s) to continue"}</button>
+      </div>
+    </div>
+  );
+}
+
+function HomeScreen({ posts, addPost, onReceipts }) {
+  const [draft, setDraft] = useState("");
+  const [aud, setAud] = useState("Everyone");
+  const [picking, setPicking] = useState(false);
+  const [acked, setAcked] = useState(new Set());
+  const post = () => { if (!draft.trim()) return; addPost({ author: "Worth Ainsworth", dept: "Marketing", audience: aud, time: "now", text: draft.trim() }); setDraft(""); setAud("Everyone"); };
+  return (
+    <div style={{ padding: "4px 16px 20px" }}>
+      <div style={{ background: c.card, border: "1px solid " + c.line, borderRadius: 18, padding: 14 }}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <Avatar name="Worth Ainsworth" size={36} bg={c.honey} />
+          <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={2} placeholder="Share something with the team..." style={{ flex: 1, border: "none", outline: "none", resize: "none", fontFamily: body, fontSize: 13.5, color: c.ink, background: "none", lineHeight: 1.4, paddingTop: 6 }} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
+          <button onClick={() => setPicking(!picking)} style={{ display: "flex", alignItems: "center", gap: 5, border: "1px solid " + c.line, cursor: "pointer", fontFamily: body, fontSize: 11.5, fontWeight: 700, padding: "6px 11px", borderRadius: 999, background: c.paper, color: c.pine }}>
+            {aud === "Everyone" ? <Globe size={13} strokeWidth={2.5} /> : <Hash size={13} strokeWidth={2.5} />}
+            {aud}
+            <ChevronDown size={13} color={c.faint} style={{ transform: picking ? "rotate(180deg)" : "none" }} />
+          </button>
+          <button onClick={post} style={{ background: c.pine, border: "none", borderRadius: 999, padding: "7px 15px", fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#F5F1E8", cursor: "pointer" }}>Post</button>
+        </div>
+        {picking && (
+          <div style={{ marginTop: 10, borderTop: "1px solid " + c.line, paddingTop: 10 }}>
+            <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: c.faint, marginBottom: 8 }}>Post to</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {AUDIENCES.map((a) => (
+                <button key={a} onClick={() => { setAud(a); setPicking(false); }} style={{ border: "none", cursor: "pointer", fontFamily: body, fontSize: 11.5, fontWeight: 600, padding: "5px 10px", borderRadius: 999, background: aud === a ? c.pine : c.paper, color: aud === a ? "#F5F1E8" : c.sub }}>{a}</button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {posts.map((p, i) => (
+        <div key={"p" + i} style={{ background: c.card, borderRadius: 18, padding: 16, marginTop: 12, border: "1px solid " + c.line }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 9 }}>
+            <Avatar name={p.author} size={34} bg={c.pine2} />
+            <div style={{ flex: 1, lineHeight: 1.15 }}>
+              <div style={{ fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.ink }}>{p.author}</div>
+              <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{p.dept} \u00b7 {p.time}</div>
+            </div>
+            {p.audience === "Everyone" ? <Badge bg={c.honey + "1F"} color="#B4772A">Everyone</Badge> : <Badge bg={c.pine + "12"} color={c.pine}>{p.audience}</Badge>}
+          </div>
+          <div style={{ fontFamily: body, fontSize: 13.5, color: c.ink, lineHeight: 1.45 }}>{p.text}</div>
+        </div>
+      ))}
+      {ANNOUNCEMENTS.map((a, i) => {
+        const iAcked = acked.has(i);
+        const ackMode = !!a.requireAck;
+        const total = a.readBy.length + a.notYet.length;
+        return (
+        <div key={"a" + i} style={{ background: c.card, borderRadius: 18, padding: 16, marginTop: 12, border: "1px solid " + c.line, boxShadow: (ackMode && !iAcked) ? "0 0 0 2px " + c.honey : (a.pinned ? "0 0 0 2px " + c.honeySoft : "none") }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: c.pine, display: "flex", alignItems: "center", justifyContent: "center" }}><Megaphone size={17} color="#F5F1E8" strokeWidth={2.2} /></div>
+            <div style={{ flex: 1, lineHeight: 1.15 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                <span style={{ fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.ink }}>{a.from}</span>
+                <Badge bg={c.pine} color="#F5F1E8">Official</Badge>
+                {ackMode && <Badge bg={c.honey} color="#3A2A08">Action required</Badge>}
+              </div>
+              <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{a.role} \u00b7 {a.time}</div>
+            </div>
+            {a.pinned && <Pin size={14} color={c.honey} strokeWidth={2.6} />}
+          </div>
+          <div style={{ fontFamily: display, fontWeight: 600, fontSize: 16, color: c.ink, lineHeight: 1.25, marginBottom: 5 }}>{a.title}</div>
+          <div style={{ fontFamily: body, fontSize: 13.5, color: c.sub, lineHeight: 1.45 }}>{a.body}</div>
+          {ackMode && (iAcked
+            ? <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 6, fontFamily: body, fontSize: 12.5, fontWeight: 700, color: "#3E7C57" }}><Check size={15} strokeWidth={3} />You acknowledged this</div>
+            : <button onClick={() => setAcked((p) => new Set(p).add(i))} style={{ marginTop: 12, width: "100%", background: c.honey, border: "none", borderRadius: 11, padding: "10px 0", fontFamily: display, fontWeight: 700, fontSize: 13.5, color: c.pine, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Check size={15} strokeWidth={3} />Got it \u2014 acknowledge</button>
+          )}
+          {a.readBy && (
+            <button onClick={() => onReceipts(a)} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, paddingTop: 11, borderTop: "1px solid " + c.line, background: "none", border: "none", cursor: "pointer", width: "100%" }}>
+              <Eye size={14} color={c.faint} />
+              <span style={{ fontFamily: body, fontSize: 12, fontWeight: 600, color: c.sub }}>{ackMode ? "Acknowledged by " : "Seen by "}{a.readBy.length} of {total}</span>
+              {a.notYet.length > 0 && <span style={{ fontFamily: body, fontSize: 11, fontWeight: 700, color: c.honey, background: c.honey + "1F", padding: "2px 7px", borderRadius: 999 }}>{a.notYet.length} {ackMode ? "not acked" : "not yet"}</span>}
+              <ChevronDown size={14} color={c.faint} style={{ marginLeft: "auto", transform: "rotate(-90deg)" }} />
+            </button>
+          )}
+        </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SectionLabel({ icon: Icon, text, note }) {
+  return (<div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 11 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon size={15} color={c.honey} strokeWidth={2.4} /><span style={{ fontFamily: display, fontWeight: 700, fontSize: 15.5, color: c.ink }}>{text}</span></div>
+    <span style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{note}</span></div>);
+}
+
+function GroupsScreen({ joined, toggle, open, requests, addRequest }) {
+  const [asking, setAsking] = useState(false);
+  const [q, setQ] = useState("");
+  const submit = () => { if (!q.trim()) return; addRequest(q.trim()); setQ(""); setAsking(false); };
+  return (
+    <div style={{ padding: "4px 16px 20px" }}>
+      <SectionLabel icon={Sparkles} text="Interest fields" note="Join what you're into" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        {INTERESTS.map((g) => {
+          const Icon = g.icon; const on = joined.has(g.id);
+          const hasSubs = !!g.subs;
+          const joinedSubs = hasSubs ? g.subs.filter((s) => joined.has(g.id + ":" + s)).length : 0;
+          return (<div key={g.id} onClick={() => open(g)} style={{ background: c.card, border: "1px solid " + c.line, borderRadius: 16, padding: 13, cursor: "pointer" }}>
+            <div style={{ width: 38, height: 38, borderRadius: 11, background: g.color + "1A", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}><Icon size={19} color={g.color} strokeWidth={2.2} /></div>
+            <div style={{ fontFamily: display, fontWeight: 600, fontSize: 14.5, color: c.ink }}>{g.name}</div>
+            <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint, marginBottom: 10 }}>{hasSubs ? g.subs.length + " groups" + (joinedSubs ? " \u00b7 " + joinedSubs + " joined" : "") : (g.members + (on ? 1 : 0)) + " members"}</div>
+            {hasSubs
+              ? <button onClick={(e) => { e.stopPropagation(); open(g); }} style={{ width: "100%", border: "none", borderRadius: 9, padding: "7px 0", fontFamily: body, fontWeight: 700, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, background: g.color + "18", color: g.color }}>Choose<ChevronDown size={13} strokeWidth={3} style={{ transform: "rotate(-90deg)" }} /></button>
+              : <button onClick={(e) => { e.stopPropagation(); toggle(g.id); }} style={{ width: "100%", border: "none", borderRadius: 9, padding: "7px 0", fontFamily: body, fontWeight: 700, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: on ? g.color + "18" : g.color, color: on ? g.color : "#fff" }}>{on ? <><Check size={13} strokeWidth={3} />Joined</> : <><Plus size={13} strokeWidth={3} />Join</>}</button>}
+          </div>);
+        })}
+      </div>
+      <div style={{ marginTop: 12, background: c.card, border: "1px dashed " + c.honey, borderRadius: 16, padding: 14 }}>
+        {!asking ? (
+          <button onClick={() => setAsking(true)} style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", width: "100%" }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: c.honey + "22", display: "flex", alignItems: "center", justifyContent: "center" }}><Plus size={18} color={c.honey} strokeWidth={2.6} /></div>
+            <div style={{ textAlign: "left" }}>
+              <div style={{ fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.ink }}>Don't see your thing?</div>
+              <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>Request a field - needlepoint, disc golf, anything</div>
+            </div>
+          </button>
+        ) : (
+          <div>
+            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} placeholder="e.g. Needlepoint" style={{ width: "100%", border: "1px solid " + c.line, borderRadius: 10, padding: "9px 12px", fontFamily: body, fontSize: 13.5, outline: "none", color: c.ink, marginBottom: 8, boxSizing: "border-box" }} />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={submit} style={{ flex: 1, background: c.honey, border: "none", borderRadius: 9, padding: "8px 0", fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#fff", cursor: "pointer" }}>Request field</button>
+              <button onClick={() => setAsking(false)} style={{ background: "none", border: "1px solid " + c.line, borderRadius: 9, padding: "8px 14px", fontFamily: body, fontWeight: 700, fontSize: 12.5, color: c.sub, cursor: "pointer" }}>Cancel</button>
+            </div>
+          </div>
+        )}
+        {requests.map((r, i) => (<div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontFamily: body, fontSize: 12, color: c.sub }}><Check size={13} color={c.secureHi} strokeWidth={3} /> "{r}" requested - pending admin review</div>))}
+      </div>
+      <div style={{ height: 22 }} />
+      <SectionLabel icon={Building2} text="Departments" note="Your team channels" />
+      {DEPARTMENTS.map((d) => (
+        <div key={d.id} onClick={() => open({ ...d, dept: true, color: c.pine, icon: Hash })} style={{ display: "flex", alignItems: "center", gap: 12, background: c.card, border: "1px solid " + c.line, borderRadius: 14, padding: "11px 13px", marginBottom: 8, cursor: "pointer" }}>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: c.pine + "12", display: "flex", alignItems: "center", justifyContent: "center" }}><Hash size={16} color={c.pine} strokeWidth={2.4} /></div>
+          <div style={{ flex: 1 }}><div style={{ fontFamily: body, fontWeight: 700, fontSize: 14, color: c.ink }}>{d.name}</div><div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{d.members} members</div></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GroupDetail({ group, back, joined, toggle, openPerson }) {
+  const Icon = group.icon || Hash;
+  const on = joined.has(group.id);
+  const isInterest = !group.dept;
+  const members = PEOPLE.filter((p) => p.tags.includes(group.id)).slice(0, 6);
+  return (
+    <div>
+      <div style={{ background: group.color, padding: "18px 16px 20px", color: "#fff" }}>
+        <button onClick={back} style={{ background: "none", border: "none", color: "#fff", display: "flex", alignItems: "center", gap: 3, fontFamily: body, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14, opacity: 0.9 }}><ChevronLeft size={16} /> Back</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 46, height: 46, borderRadius: 13, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={24} strokeWidth={2.2} /></div>
+          <div><div style={{ fontFamily: display, fontWeight: 700, fontSize: 21 }}>{group.name}</div><div style={{ fontFamily: body, fontSize: 12.5, opacity: 0.9 }}>{group.members + (on ? 1 : 0)} members</div></div>
+        </div>
+        {isInterest && !group.subs && (<button onClick={() => toggle(group.id)} style={{ marginTop: 14, width: "100%", border: "none", borderRadius: 10, padding: "9px 0", fontFamily: body, fontWeight: 700, fontSize: 13.5, cursor: "pointer", background: on ? "rgba(255,255,255,0.22)" : "#fff", color: on ? "#fff" : group.color, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>{on ? <><Check size={15} strokeWidth={3} />You're in</> : <><Plus size={15} strokeWidth={3} />Join {group.name}</>}</button>)}
+      </div>
+      <div style={{ padding: 16 }}>
+        {group.subs && (
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontFamily: display, fontWeight: 700, fontSize: 14, color: c.ink, marginBottom: 3 }}>Choose your groups</div>
+            <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint, marginBottom: 12 }}>Join any that fit - mix and match.</div>
+            {group.subs.map((s) => {
+              const key = group.id + ":" + s; const son = joined.has(key);
+              return (
+                <div key={s} style={{ display: "flex", alignItems: "center", gap: 11, background: c.card, border: "1px solid " + c.line, borderRadius: 13, padding: "10px 12px", marginBottom: 8 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 999, background: group.color, flexShrink: 0 }} />
+                  <div style={{ flex: 1, fontFamily: body, fontWeight: 600, fontSize: 13.5, color: c.ink }}>{s}</div>
+                  <button onClick={() => toggle(key)} style={{ border: "none", borderRadius: 999, padding: "5px 13px", fontFamily: body, fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, background: son ? group.color + "18" : group.color, color: son ? group.color : "#fff" }}>{son ? <><Check size={12} strokeWidth={3} />Joined</> : <><Plus size={12} strokeWidth={3} />Join</>}</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 14, color: c.ink, marginBottom: 10 }}>People here</div>
+        {members.map((p, i) => (<div key={i} onClick={() => openPerson && openPerson(p)} style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 11, cursor: "pointer" }}><Avatar name={p.name} size={38} bg={group.color} /><div><div style={{ fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.ink }}>{p.name}</div><div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{p.role} \u00b7 {p.loc}</div></div></div>))}
+        <div style={{ background: c.card, border: "1px dashed " + c.line, borderRadius: 14, padding: 14, textAlign: "center", marginTop: 6 }}><div style={{ fontFamily: body, fontSize: 12.5, color: c.sub }}>Start the conversation - say hey to the {group.name} crew.</div></div>
+      </div>
+    </div>
+  );
+}
+
+function DirectoryScreen({ myTags, openPerson }) {
+  const [q, setQ] = useState("");
+  const list = PEOPLE.filter((p) => (p.name + p.role + p.loc).toLowerCase().includes(q.toLowerCase()));
+  return (
+    <div style={{ padding: "4px 16px 20px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, background: c.card, border: "1px solid " + c.line, borderRadius: 12, padding: "9px 12px", marginBottom: 14 }}>
+        <Search size={16} color={c.faint} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, role, or clinic" style={{ border: "none", outline: "none", background: "none", fontFamily: body, fontSize: 13.5, color: c.ink, width: "100%" }} />
+      </div>
+      {list.map((p, i) => {
+        const shared = p.tags.filter((t) => myTags.has(t));
+        return (<div key={i} onClick={() => openPerson(p)} style={{ background: c.card, border: "1px solid " + c.line, borderRadius: 16, padding: 14, marginBottom: 10, cursor: "pointer" }}>
+          <div style={{ display: "flex", gap: 12 }}>
+            <Avatar name={p.name} size={46} bg={c.pine2} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontFamily: display, fontWeight: 600, fontSize: 15.5, color: c.ink }}>{p.name}</span>
+                <ChevronLeft size={15} color={c.faint} style={{ transform: "rotate(180deg)" }} />
+              </div>
+              <div style={{ fontFamily: body, fontSize: 12, color: c.sub, marginBottom: 3 }}>{p.role}</div>
+              <div style={{ display: "flex", gap: 12, fontFamily: body, fontSize: 11.5, color: c.faint }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><MapPin size={11} />{p.loc}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><GraduationCap size={12} />{p.school}</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 11 }}>{p.tags.map((t) => <Chip key={t} interest={tagById(t)} active={myTags.has(t)} />)}</div>
+          {shared.length > 0 && (<div style={{ marginTop: 10, fontFamily: body, fontSize: 11.5, fontWeight: 600, color: c.honey, display: "flex", alignItems: "center", gap: 5 }}><Heart size={11} strokeWidth={2.6} fill={c.honey} /> You both like {shared.map((s) => tagById(s).name).join(" & ")}</div>)}
+        </div>);
+      })}
+    </div>
+  );
+}
+
+function PersonDetail({ person, back, myTags, onMessage }) {
+  const [open, setOpen] = useState(person.tags[0]);
+  const [reported, setReported] = useState(false);
+  return (
+    <div>
+      <div style={{ background: c.pine, padding: "14px 16px 20px", color: "#F5F1E8" }}>
+        <button onClick={back} style={{ background: "none", border: "none", color: "rgba(245,241,232,0.75)", display: "flex", alignItems: "center", gap: 3, fontFamily: body, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}><ChevronLeft size={16} /> Directory</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Avatar name={person.name} size={58} bg={c.honey} />
+          <div>
+            <div style={{ fontFamily: display, fontWeight: 700, fontSize: 21 }}>{person.name}</div>
+            <div style={{ fontFamily: body, fontSize: 13, opacity: 0.85 }}>{person.role}</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, marginTop: 14, fontFamily: body, fontSize: 12, opacity: 0.85 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><MapPin size={12} />{person.loc}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><GraduationCap size={13} />{person.school}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Building2 size={12} />{person.dept}</span>
+        </div>
+      </div>
+      <div style={{ padding: 16 }}>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 14, color: c.ink, marginBottom: 4 }}>Interests</div>
+        <div style={{ fontFamily: body, fontSize: 12, color: c.faint, marginBottom: 12 }}>Tap one to see their story - and reach out.</div>
+        {person.tags.map((t) => {
+          const g = tagById(t); const Icon = g.icon; const isOpen = open === t; const mutual = myTags.has(t);
+          return (
+            <div key={t} style={{ border: "1px solid " + (isOpen ? g.color + "44" : c.line), borderRadius: 16, marginBottom: 10, overflow: "hidden", background: c.card }}>
+              <button onClick={() => setOpen(isOpen ? null : t)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 11, padding: 13, background: "none", border: "none", cursor: "pointer" }}>
+                <div style={{ width: 38, height: 38, borderRadius: 11, background: g.color + "1A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={19} color={g.color} strokeWidth={2.2} /></div>
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                    <span style={{ fontFamily: display, fontWeight: 600, fontSize: 14.5, color: c.ink }}>{g.name}</span>
+                    {mutual && <span style={{ fontFamily: body, fontSize: 10, fontWeight: 700, color: g.color, background: g.color + "18", padding: "1px 6px", borderRadius: 999 }}>SHARED</span>}
+                  </div>
+                  {!isOpen && <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 210 }}>{person.details[t]}</div>}
+                </div>
+                <ChevronDown size={17} color={c.faint} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }} />
+              </button>
+              {isOpen && (
+                <div style={{ padding: "0 14px 14px 62px" }}>
+                  <div style={{ fontFamily: body, fontSize: 13.5, color: c.ink, lineHeight: 1.5, marginBottom: 12 }}>{person.details[t]}</div>
+                  <button onClick={() => onMessage(person, g.name)} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: g.color, border: "none", borderRadius: 10, padding: "8px 14px", fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#fff", cursor: "pointer" }}>
+                    <MessageCircle size={14} strokeWidth={2.4} /> Message {first(person.name)} about {g.name}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        {/* report */}
+        <div style={{ marginTop: 8, textAlign: "center" }}>
+          {reported ? (
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: body, fontSize: 12, color: c.sub }}><Check size={13} color={c.secureHi} strokeWidth={3} /> Reported - an admin will review this profile.</div>
+          ) : (
+            <button onClick={() => setReported(true)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", fontFamily: body, fontSize: 12, fontWeight: 600, color: c.faint }}><Flag size={12} /> Report this profile</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MessagesScreen({ open, openSecure, secureOpen }) {
+  return (
+    <div style={{ padding: "4px 8px 20px" }}>
+      <div onClick={openSecure} style={{ cursor: "pointer", margin: "2px 4px 8px", background: c.secure, borderRadius: 18, padding: 15 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 13, background: "rgba(79,182,138,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}><Lock size={21} color={c.secureHi} strokeWidth={2.3} /></div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}><span style={{ fontFamily: display, fontWeight: 700, fontSize: 15.5, color: "#F5F1E8" }}>Secure Messaging</span><ShieldCheck size={14} color={c.secureHi} /></div>
+            <div style={{ fontFamily: body, fontSize: 11.5, color: "rgba(245,241,232,0.6)" }}>{secureOpen > 0 ? secureOpen + " open item" + (secureOpen > 1 ? "s" : "") + " you need to close" : "Patient info lives here. Encrypted & audit-logged."}</div>
+          </div>
+          {secureOpen > 0 && <div style={{ background: c.honey, color: c.secure, fontFamily: body, fontWeight: 700, fontSize: 12, minWidth: 22, height: 22, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 6px" }}>{secureOpen}</div>}
+          <ChevronLeft size={18} color="rgba(245,241,232,0.5)" style={{ transform: "rotate(180deg)" }} />
+        </div>
+      </div>
+      <div style={{ fontFamily: body, fontSize: 11, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: c.faint, padding: "4px 12px 6px" }}>Team & interest chats</div>
+      {THREADS.map((t) => {
+        const Icon = t.icon;
+        return (<div key={t.id} onClick={() => open(t)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 12px", cursor: "pointer" }}>
+          {t.group ? <div style={{ width: 46, height: 46, borderRadius: 14, background: t.color + "1A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={22} color={t.color} strokeWidth={2.2} /></div> : <Avatar name={t.name} size={46} bg={c.pine2} />}
+          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontFamily: body, fontWeight: 700, fontSize: 14.5, color: c.ink }}>{t.name}</div><div style={{ fontFamily: body, fontSize: 12.5, color: c.sub, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.last}</div></div>
+          {t.unread > 0 && <div style={{ background: c.honey, color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 11, minWidth: 20, height: 20, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 6px" }}>{t.unread}</div>}
+        </div>);
+      })}
+    </div>
+  );
+}
+
+function ThreadDetail({ thread, back, seedInterest }) {
+  const greetings = seedInterest ? [{ me: true, text: "Hey " + first(thread.name) + "! Saw on your profile you're into " + seedInterest + " - would love to connect about it." }] : [
+    { me: false, who: thread.group ? "Tyler" : thread.name, text: thread.group ? "Bringing the '69 Camaro to the lot Friday \u{1F527}" : "Hey! You coming to the Tupelo tour next week?" },
+    { me: true, text: thread.group ? "Say less. I'll bring the truck for the group photo." : "Wouldn't miss it. Save me a spot." },
+  ];
+  const [msgs, setMsgs] = useState(greetings);
+  const [draft, setDraft] = useState("");
+  const [reported, setReported] = useState(new Set());
+  const send = () => { if (!draft.trim()) return; setMsgs([...msgs, { me: true, text: draft }]); setDraft(""); };
+  const flag = (i) => setReported((prev) => { const n = new Set(prev); n.add(i); return n; });
+  const Icon = thread.icon;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", borderBottom: "1px solid " + c.line }}>
+        <button onClick={back} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex" }}><ChevronLeft size={22} color={c.ink} /></button>
+        {thread.group ? <div style={{ width: 34, height: 34, borderRadius: 10, background: thread.color + "1A", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={17} color={thread.color} strokeWidth={2.3} /></div> : <Avatar name={thread.name} size={34} bg={c.pine2} />}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 15.5, color: c.ink }}>{thread.name}</div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: 9 }}>
+        {msgs.map((m, i) => (<div key={i} style={{ alignSelf: m.me ? "flex-end" : "flex-start", maxWidth: "80%" }}>
+          {!m.me && thread.group && <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, color: c.faint, margin: "0 0 2px 10px" }}>{m.who}</div>}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 6, flexDirection: m.me ? "row-reverse" : "row" }}>
+            <div style={{ padding: "9px 13px", borderRadius: 16, fontFamily: body, fontSize: 13.5, lineHeight: 1.4, background: m.me ? c.pine : c.card, color: m.me ? "#F5F1E8" : c.ink, border: m.me ? "none" : "1px solid " + c.line, borderBottomRightRadius: m.me ? 5 : 16, borderBottomLeftRadius: m.me ? 16 : 5 }}>{m.text}</div>
+            {!m.me && (reported.has(i)
+              ? <span style={{ fontFamily: body, fontSize: 9.5, color: c.faint, display: "inline-flex", alignItems: "center", gap: 2 }}><Check size={9} strokeWidth={3} />reported</span>
+              : <button onClick={() => flag(i)} title="Report message" style={{ background: "none", border: "none", cursor: "pointer", padding: 2, display: "flex", opacity: 0.4 }}><Flag size={12} color={c.flag} /></button>)}
+          </div>
+        </div>))}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderTop: "1px solid " + c.line }}>
+        <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Message" style={{ flex: 1, border: "1px solid " + c.line, borderRadius: 999, padding: "9px 14px", fontFamily: body, fontSize: 13.5, outline: "none", color: c.ink }} />
+        <button onClick={send} style={{ background: c.pine, border: "none", borderRadius: 999, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Send size={17} color="#F5F1E8" /></button>
+      </div>
+    </div>
+  );
+}
+
+function SecureScreen({ back, msgs, setMsgs }) {
+  const [scopes, setScopes] = useState(new Set(["team"]));
+  const toggleScope = (id) => setScopes((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const [draft, setDraft] = useState("");
+  const selected = SECURE_SCOPES.filter((s) => scopes.has(s.id));
+  const hasEveryone = scopes.has("everyone");
+  const [note, setNote] = useState("");
+  const send = () => { if (!draft.trim() || selected.length === 0) return; setMsgs([...msgs, { who: "You", me: true, text: draft.trim(), time: "now" }]); setDraft(""); };
+  const resolve = (idx) => { setMsgs(msgs.filter((_, i) => i !== idx)); setNote("Marked complete - cleared from the desk, kept in the audit log."); setTimeout(() => setNote(""), 3000); };
+  const openMine = msgs.filter((m) => m.me).length;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: c.secure }}>
+      <div style={{ padding: "12px 14px 14px" }}>
+        <button onClick={back} style={{ background: "none", border: "none", color: "rgba(245,241,232,0.7)", display: "flex", alignItems: "center", gap: 3, fontFamily: body, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 10 }}><ChevronLeft size={16} /> Back</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}><Lock size={20} color={c.secureHi} strokeWidth={2.4} /><span style={{ fontFamily: display, fontWeight: 800, fontSize: 22, color: "#F5F1E8" }}>Secure Messaging</span></div>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginTop: 10, background: "rgba(79,182,138,0.12)", borderRadius: 10, padding: "8px 10px" }}>
+          <ShieldCheck size={14} color={c.secureHi} style={{ marginTop: 1, flexShrink: 0 }} />
+          <span style={{ fontFamily: body, fontSize: 11.5, color: "rgba(245,241,232,0.82)", lineHeight: 1.4 }}>The only place patient info is allowed. Encrypted, access-controlled, and audit-logged - separate from everything social.</span>
+        </div>
+      </div>
+      <div style={{ padding: "0 14px 8px" }}>
+        <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "rgba(245,241,232,0.45)", marginBottom: 7 }}>Send to</div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {SECURE_SCOPES.map((s) => {
+            const on = scopes.has(s.id);
+            return (<button key={s.id} onClick={() => toggleScope(s.id)} style={{ display: "flex", alignItems: "center", gap: 5, border: on ? "1px solid " + c.secureHi : "1px solid rgba(245,241,232,0.16)", background: on ? "rgba(79,182,138,0.18)" : "transparent", borderRadius: 999, padding: "6px 11px", cursor: "pointer", fontFamily: body, fontWeight: 600, fontSize: 12, color: on ? "#F5F1E8" : "rgba(245,241,232,0.7)" }}>{s.label}</button>);
+          })}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)" }}><Info size={11} /> {selected.length === 0 ? "Pick at least one recipient." : hasEveryone ? "Includes Everyone - the widest scope. Use the tightest groups that work." : "Sending to " + selected.length + " group" + (selected.length > 1 ? "s" : "") + " - keep it to who needs to know."}</div>
+      </div>
+      {openMine > 0 && (<div style={{ margin: "0 14px 8px", background: "rgba(224,154,56,0.14)", border: "1px solid rgba(224,154,56,0.3)", borderRadius: 12, padding: "9px 12px", display: "flex", alignItems: "flex-start", gap: 8 }}><Bell size={14} color={c.honey} style={{ marginTop: 1, flexShrink: 0 }} /><div style={{ fontFamily: body, fontSize: 11.5, color: "rgba(245,241,232,0.85)", lineHeight: 1.4 }}><b style={{ color: c.honey }}>{openMine} open item{openMine > 1 ? "s" : ""} you sent.</b> As the sender, you close each once it's handled - anything still open at shift change is flagged to your lead.</div></div>)}
+      {note && <div style={{ margin: "0 14px 6px", background: "rgba(79,182,138,0.15)", borderRadius: 10, padding: "8px 11px", fontFamily: body, fontSize: 11.5, color: c.secureHi, display: "flex", alignItems: "center", gap: 6 }}><Check size={13} strokeWidth={3} />{note}</div>}
+      <div style={{ flex: 1, overflowY: "auto", padding: "10px 14px", display: "flex", flexDirection: "column", gap: 9 }}>
+        {msgs.length === 0 && <div style={{ margin: "auto", textAlign: "center", fontFamily: body, fontSize: 12.5, color: "rgba(245,241,232,0.45)", padding: 20, lineHeight: 1.5 }}>All clear. Completed items stay in the audit log for compliance - just not on the desk.</div>}
+        {msgs.map((m, i) => (<div key={i} style={{ alignSelf: m.me ? "flex-end" : "flex-start", maxWidth: "82%" }}>
+          {!m.me && <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, color: "rgba(245,241,232,0.5)", margin: "0 0 2px 10px" }}>{m.who}</div>}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 6, flexDirection: m.me ? "row-reverse" : "row" }}>
+            <div style={{ padding: "9px 13px", borderRadius: 15, fontFamily: body, fontSize: 13.5, lineHeight: 1.4, background: m.me ? c.secureHi : "rgba(245,241,232,0.09)", color: m.me ? "#0E1A16" : "#F5F1E8", fontWeight: m.me ? 600 : 400, borderBottomRightRadius: m.me ? 5 : 15, borderBottomLeftRadius: m.me ? 15 : 5 }}>{m.text}</div>
+            {m.me && <button onClick={() => resolve(i)} title="Mark complete (you sent this)" style={{ background: "rgba(79,182,138,0.15)", border: "1px solid rgba(79,182,138,0.4)", borderRadius: 999, width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}><Check size={14} color={c.secureHi} strokeWidth={3} /></button>}
+          </div>
+          <div style={{ fontFamily: body, fontSize: 9.5, color: "rgba(245,241,232,0.35)", textAlign: m.me ? "right" : "left", margin: "3px 8px 0" }}>{m.time} \u00b7 logged</div>
+          {m.me && m.reminded != null && <div style={{ fontFamily: body, fontSize: 9.5, color: c.honey, textAlign: "right", margin: "2px 8px 0", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 4 }}><Clock size={9} /> Open {m.age} \u00b7 reminded {m.reminded}\u00d7 \u00b7 next nudge {m.next}</div>}
+        </div>))}
+      </div>
+      <div style={{ padding: "10px 12px", borderTop: "1px solid rgba(245,241,232,0.1)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder={"Message " + (selected.length === 0 ? "secure recipients" : selected.length === 1 ? selected[0].label.toLowerCase() : selected.length + " groups") + "..."} style={{ flex: 1, border: "1px solid rgba(245,241,232,0.18)", borderRadius: 999, padding: "9px 14px", fontFamily: body, fontSize: 13.5, outline: "none", color: "#F5F1E8", background: "rgba(245,241,232,0.06)" }} />
+          <button onClick={send} style={{ background: c.secureHi, border: "none", borderRadius: 999, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><Send size={17} color="#0E1A16" /></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const AUDIT = [
+  { id: "A-2291", hash: "3f9a1c", content: "Bobby S. - walk-in, on his way. Let me know when he checks in.", scope: "Oxford front desk (11)", date: "Aug 3, 2026", retain: "Aug 3, 2032",
+    events: [
+      { t: "09:32:04", who: "Dana Whitfield", action: "Sent" },
+      { t: "09:32:09", who: "11 recipients", action: "Delivered" },
+      { t: "09:37:41", who: "Worth Ainsworth", action: "Read" },
+      { t: "09:38:02", who: "Worth Ainsworth", action: "Acknowledged" },
+      { t: "09:40:55", who: "Angela Pope", action: "Marked complete" },
+    ] },
+  { id: "A-2288", hash: "b7e042", content: "Room 3 is open - next patient can be roomed.", scope: "My care team (8)", date: "Aug 3, 2026", retain: "Aug 3, 2032",
+    events: [
+      { t: "08:51:10", who: "Angela Pope", action: "Sent" },
+      { t: "08:51:14", who: "8 recipients", action: "Delivered" },
+      { t: "08:52:33", who: "Marcus Bell", action: "Read" },
+      { t: "08:53:01", who: "Marcus Bell", action: "Marked complete" },
+    ] },
+];
+const ACTION_COLOR = { Sent: "#6FA8DC", Delivered: "rgba(245,241,232,0.4)", Read: "rgba(245,241,232,0.6)", Acknowledged: c.honey, "Marked complete": c.secureHi };
+
+function AuditLog({ back }) {
+  const [channels, setChannels] = useState({ push: true, badge: true, email: false, sms: false });
+  const toggle = (k) => setChannels((p) => ({ ...p, [k]: !p[k] }));
+  const [pending, setPending] = useState(PENDING);
+  const act = (idx) => setPending((prev) => prev.filter((_, i) => i !== idx));
+  const [members, setMembers] = useState(MEMBERS_SEED);
+  const cycleRole = (i) => setMembers((prev) => prev.map((m, idx) => idx === i ? { ...m, role: ROLES3[(ROLES3.indexOf(m.role) + 1) % ROLES3.length] } : m));
+  const toggleActive = (i) => setMembers((prev) => prev.map((m, idx) => idx === i ? { ...m, active: !m.active } : m));
+  const CHANNELS = [
+    { k: "push", label: "Push notifications", note: "Escalating nudges to the sender", fixed: true },
+    { k: "badge", label: "In-app badge", note: "Open count on Secure Messaging", fixed: true },
+    { k: "email", label: "Email fallback", note: "For weekend coverage" },
+    { k: "sms", label: "SMS fallback", note: "Optional second net" },
+  ];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: c.secure }}>
+      <div style={{ padding: "12px 14px 12px" }}>
+        <button onClick={back} style={{ background: "none", border: "none", color: "rgba(245,241,232,0.7)", display: "flex", alignItems: "center", gap: 3, fontFamily: body, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 10 }}><ChevronLeft size={16} /> Admin console</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 9 }}><ShieldCheck size={20} color={c.secureHi} strokeWidth={2.4} /><span style={{ fontFamily: display, fontWeight: 800, fontSize: 22, color: "#F5F1E8" }}>Audit Log</span></div>
+        <div style={{ fontFamily: body, fontSize: 12, color: "rgba(245,241,232,0.55)", marginTop: 3 }}>Secure Messaging \u00b7 immutable \u00b7 retained 6 years</div>
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 6, margin: "0 14px 10px", background: "rgba(224,154,56,0.12)", borderRadius: 10, padding: "8px 10px" }}>
+        <Eye size={13} color={c.honey} style={{ marginTop: 1, flexShrink: 0 }} />
+        <span style={{ fontFamily: body, fontSize: 11.5, color: "rgba(245,241,232,0.82)", lineHeight: 1.4 }}>Admins & compliance only. Your access to this log is itself recorded - event #L-5567, Worth Ainsworth, 09:41.</span>
+      </div>
+      <div style={{ margin: "0 14px 12px", background: "rgba(245,241,232,0.05)", border: "1px solid rgba(245,241,232,0.1)", borderRadius: 14, padding: 13 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+          <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8" }}>Pending approvals</div>
+          {pending.length > 0 && <span style={{ background: c.honey, color: c.secure, fontFamily: body, fontWeight: 700, fontSize: 11, minWidth: 20, height: 20, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 6px" }}>{pending.length}</span>}
+        </div>
+        <div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", marginBottom: 12 }}>Each row is one department's OK. A member in two departments needs both.</div>
+        {pending.length === 0 ? (
+          <div style={{ fontFamily: body, fontSize: 12, color: "rgba(245,241,232,0.55)", display: "flex", alignItems: "center", gap: 6 }}><Check size={13} color={c.secureHi} strokeWidth={3} /> All caught up.</div>
+        ) : pending.map((p, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 11 }}>
+            <Avatar name={p.name} size={34} bg={c.pine2} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#F5F1E8" }}>{p.name}</div>
+              <div style={{ fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.role} \u00b7 {p.dept}</div>
+            </div>
+            <button onClick={() => act(i)} style={{ background: c.secureHi, border: "none", borderRadius: 8, padding: "6px 12px", fontFamily: body, fontWeight: 700, fontSize: 11.5, color: "#0E1A16", cursor: "pointer" }}>Approve</button>
+            <button onClick={() => act(i)} style={{ background: "none", border: "1px solid rgba(245,241,232,0.2)", borderRadius: 8, padding: "6px 10px", fontFamily: body, fontWeight: 700, fontSize: 11.5, color: "rgba(245,241,232,0.7)", cursor: "pointer" }}>Deny</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "0 14px 12px", background: "rgba(245,241,232,0.05)", border: "1px solid rgba(245,241,232,0.1)", borderRadius: 14, padding: 13 }}>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8", marginBottom: 2 }}>Roles & permissions</div>
+        <div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", marginBottom: 12 }}>Who can do what.</div>
+        {ROLE_SUMMARY.map((r, i) => { const Icon = r.icon; return (
+          <div key={i} style={{ display: "flex", gap: 10, marginBottom: i === ROLE_SUMMARY.length - 1 ? 0 : 12 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 9, background: "rgba(245,241,232,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={15} color={c.secureHi} strokeWidth={2.2} /></div>
+            <div><div style={{ fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#F5F1E8" }}>{r.role}</div><div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", lineHeight: 1.4 }}>{r.note}</div></div>
+          </div>
+        ); })}
+      </div>
+      <div style={{ margin: "0 14px 12px", background: "rgba(245,241,232,0.05)", border: "1px solid rgba(245,241,232,0.1)", borderRadius: 14, padding: 13 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+          <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8" }}>Member access</div>
+          <button style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(79,182,138,0.15)", border: "1px solid rgba(79,182,138,0.4)", borderRadius: 8, padding: "5px 10px", fontFamily: body, fontWeight: 700, fontSize: 11, color: c.secureHi, cursor: "pointer" }}><Plus size={12} strokeWidth={3} />Add</button>
+        </div>
+        <div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", marginBottom: 12 }}>Assign roles and offboard. Tap a role to change it.</div>
+        {members.map((m, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 11, opacity: m.active ? 1 : 0.5 }}>
+            <Avatar name={m.name} size={32} bg={c.pine2} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontFamily: body, fontWeight: 700, fontSize: 12.5, color: "#F5F1E8", textDecoration: m.active ? "none" : "line-through" }}>{m.name}</div>
+              <div style={{ fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.5)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.dept}</div>
+            </div>
+            <button onClick={() => cycleRole(i)} style={{ background: ROLE_COLOR[m.role] + "26", border: "1px solid " + ROLE_COLOR[m.role] + "66", borderRadius: 999, padding: "4px 9px", fontFamily: body, fontWeight: 700, fontSize: 10.5, color: ROLE_COLOR[m.role], cursor: "pointer", flexShrink: 0 }}>{m.role}</button>
+            <button onClick={() => toggleActive(i)} style={{ background: m.active ? "rgba(79,182,138,0.15)" : "rgba(245,241,232,0.08)", border: "none", borderRadius: 999, padding: "4px 9px", fontFamily: body, fontWeight: 700, fontSize: 10.5, color: m.active ? c.secureHi : "rgba(245,241,232,0.5)", cursor: "pointer", flexShrink: 0 }}>{m.active ? "Active" : "Off"}</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ margin: "0 14px 12px", background: "rgba(245,241,232,0.05)", border: "1px solid rgba(245,241,232,0.1)", borderRadius: 14, padding: 13 }}>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8", marginBottom: 2 }}>Reminder channels</div>
+        <div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", marginBottom: 12 }}>How the app pings a sender who has an open item. Pluggable - flip a channel on or off.</div>
+        {CHANNELS.map((row) => (
+          <div key={row.k} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: body, fontSize: 12.5, fontWeight: 600, color: "#F5F1E8" }}>{row.label}{row.fixed && <span style={{ fontFamily: body, fontSize: 9, fontWeight: 700, color: c.secureHi, marginLeft: 6, letterSpacing: "0.06em" }}>CORE</span>}</div>
+              <div style={{ fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.45)" }}>{row.note}</div>
+            </div>
+            <button onClick={() => !row.fixed && toggle(row.k)} disabled={row.fixed} style={{ width: 40, height: 23, borderRadius: 999, border: "none", cursor: row.fixed ? "default" : "pointer", background: channels[row.k] ? c.secureHi : "rgba(245,241,232,0.15)", position: "relative", flexShrink: 0, opacity: row.fixed ? 0.65 : 1 }}>
+              <span style={{ position: "absolute", top: 3, left: channels[row.k] ? 20 : 3, width: 17, height: 17, borderRadius: 999, background: "#fff", transition: "left 0.15s" }} />
+            </button>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6, paddingTop: 10, borderTop: "1px solid rgba(245,241,232,0.1)", fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.5)" }}><ShieldCheck size={11} color={c.secureHi} /> Every channel uses PHI-safe wording - never a patient name.</div>
+      </div>
+      <div style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(245,241,232,0.4)", margin: "0 14px 8px" }}>Message trail</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 14px 10px", background: "rgba(245,241,232,0.06)", border: "1px solid rgba(245,241,232,0.14)", borderRadius: 10, padding: "8px 11px" }}>
+        <Search size={14} color="rgba(245,241,232,0.4)" />
+        <span style={{ fontFamily: body, fontSize: 12.5, color: "rgba(245,241,232,0.4)" }}>Filter by patient, sender, date, or action</span>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 14px 16px" }}>
+        {AUDIT.map((m) => (
+          <div key={m.id} style={{ background: "rgba(245,241,232,0.05)", border: "1px solid rgba(245,241,232,0.1)", borderRadius: 16, padding: 14, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
+              <span style={{ fontFamily: body, fontSize: 11, fontWeight: 700, color: "rgba(245,241,232,0.55)", letterSpacing: "0.03em" }}>MSG #{m.id}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontFamily: body, fontSize: 10.5, fontWeight: 700, color: c.secureHi, background: "rgba(79,182,138,0.14)", padding: "2px 8px", borderRadius: 999 }}><Lock size={10} strokeWidth={2.6} />Sealed \u00b7 {m.hash}</span>
+            </div>
+            <div style={{ background: "rgba(245,241,232,0.06)", borderLeft: "2px solid rgba(245,241,232,0.25)", borderRadius: "0 8px 8px 0", padding: "8px 11px", fontFamily: body, fontSize: 12.5, color: "#F5F1E8", lineHeight: 1.4, marginBottom: 10 }}>{m.content}</div>
+            <div style={{ fontFamily: body, fontSize: 11, color: "rgba(245,241,232,0.5)", marginBottom: 12 }}>To: {m.scope} \u00b7 {m.date}</div>
+            <div>
+              {m.events.map((e, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: i === m.events.length - 1 ? 0 : 8 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: 999, background: ACTION_COLOR[e.action], flexShrink: 0 }} />
+                  <span style={{ fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.4)", width: 58, flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{e.t}</span>
+                  <span style={{ fontFamily: body, fontSize: 12, fontWeight: 700, color: ACTION_COLOR[e.action] === "rgba(245,241,232,0.4)" ? "rgba(245,241,232,0.75)" : ACTION_COLOR[e.action] }}>{e.action}</span>
+                  <span style={{ fontFamily: body, fontSize: 12, color: "rgba(245,241,232,0.6)" }}>\u00b7 {e.who}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(245,241,232,0.1)", fontFamily: body, fontSize: 10.5, color: "rgba(245,241,232,0.45)" }}>
+              <Clock size={11} /> Immutable \u00b7 retained until {m.retain}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProfileScreen({ joined, onAdmin }) {
+  const mine = INTERESTS.filter((i) => joined.has(i.id) || (i.subs && i.subs.some((s) => joined.has(i.id + ":" + s))));
+  const [myDepts, setMyDepts] = useState([{ name: "Marketing", status: "active" }, { name: "Physicians / Administration", status: "pending" }]);
+  const [reqOpen, setReqOpen] = useState(false);
+  const requestDept = (name) => { setMyDepts((p) => [...p, { name, status: "pending" }]); setReqOpen(false); };
+  const available = DEPARTMENTS.filter((d) => !myDepts.some((m) => m.name === d.name));
+  const [editing, setEditing] = useState(false);
+  const [prof, setProf] = useState({ home: "Oxford, Mississippi", school: "University of Mississippi", ask: "Pickleball strategy, project cars, side hustles" });
+  const [snap, setSnap] = useState(prof);
+  const startEdit = () => { setSnap(prof); setEditing(true); };
+  const cancelEdit = () => { setProf(snap); setEditing(false); };
+  const PFIELDS = [
+    { k: "home", icon: MapPin, label: "Home base" },
+    { k: "school", icon: GraduationCap, label: "School" },
+    { k: "ask", icon: Sparkles, label: "Ask me about" },
+  ];
+  const Field = ({ icon: Icon, label, value }) => (
+    <div style={{ display: "flex", gap: 11, padding: "12px 0", borderBottom: "1px solid " + c.line }}>
+      <Icon size={17} color={c.honey} strokeWidth={2.2} style={{ marginTop: 1 }} />
+      <div><div style={{ fontFamily: body, fontSize: 11, fontWeight: 700, color: c.faint, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div><div style={{ fontFamily: body, fontSize: 14, color: c.ink, fontWeight: 500 }}>{value}</div></div>
+    </div>
+  );
+  return (
+    <div>
+      <div style={{ background: c.pine, padding: "22px 16px 20px", color: "#F5F1E8" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Avatar name="Worth Ainsworth" size={62} bg={c.honey} />
+          <div><div style={{ fontFamily: display, fontWeight: 700, fontSize: 21 }}>Worth Ainsworth</div><div style={{ fontFamily: body, fontSize: 13, opacity: 0.85 }}>Physician Liaison \u00b7 Oxford</div></div>
+        </div>
+      </div>
+      <div style={{ padding: "6px 16px 20px" }}>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 14, color: c.ink, margin: "14px 0 6px" }}>My interests</div>
+        <div style={{ fontFamily: body, fontSize: 12, color: c.faint, marginBottom: 8 }}>Tap a field to add your story - level, what you're after, who you want to meet.</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 8 }}>{mine.length ? mine.map((g) => <Chip key={g.id} interest={g} active />) : <span style={{ fontFamily: body, fontSize: 12.5, color: c.faint }}>Join a field on the Groups tab and it shows up here.</span>}</div>
+        {PFIELDS.map(({ k, icon: Icon, label }) => (
+          <div key={k} style={{ display: "flex", gap: 11, padding: "12px 0", borderBottom: "1px solid " + c.line }}>
+            <Icon size={17} color={c.honey} strokeWidth={2.2} style={{ marginTop: 1 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: body, fontSize: 11, fontWeight: 700, color: c.faint, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</div>
+              {editing
+                ? <input value={prof[k]} onChange={(e) => setProf((p) => ({ ...p, [k]: e.target.value }))} style={{ width: "100%", border: "1px solid " + c.line, borderRadius: 8, padding: "6px 9px", fontFamily: body, fontSize: 14, color: c.ink, outline: "none", marginTop: 4, boxSizing: "border-box", background: c.paper }} />
+                : <div style={{ fontFamily: body, fontSize: 14, color: c.ink, fontWeight: 500 }}>{prof[k]}</div>}
+            </div>
+          </div>
+        ))}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 14, color: c.ink, margin: "20px 0 8px" }}>My departments</div>
+        {myDepts.map((d, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0", borderBottom: "1px solid " + c.line }}>
+            <Building2 size={16} color={c.honey} strokeWidth={2.2} />
+            <span style={{ flex: 1, fontFamily: body, fontSize: 14, color: c.ink, fontWeight: 500 }}>{d.name}</span>
+            {d.status === "active"
+              ? <span style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, color: "#3E7C57", background: "rgba(62,124,87,0.14)", padding: "3px 9px", borderRadius: 999 }}>Active</span>
+              : <span style={{ fontFamily: body, fontSize: 10.5, fontWeight: 700, color: "#B4772A", background: c.honey + "22", padding: "3px 9px", borderRadius: 999 }}>Awaiting manager</span>}
+          </div>
+        ))}
+        {!reqOpen ? (
+          <button onClick={() => setReqOpen(true)} disabled={available.length === 0} style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 6, background: "none", border: "1px dashed " + c.honey, borderRadius: 10, padding: "9px 12px", width: "100%", justifyContent: "center", fontFamily: body, fontWeight: 700, fontSize: 12.5, color: c.honey, cursor: "pointer" }}><Plus size={13} strokeWidth={3} />Request another department</button>
+        ) : (
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint, marginBottom: 8 }}>Pick one - it goes to that department's manager to approve.</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+              {available.map((d) => (
+                <button key={d.id} onClick={() => requestDept(d.name)} style={{ border: "1px solid " + c.line, background: c.card, cursor: "pointer", fontFamily: body, fontSize: 12, fontWeight: 600, padding: "6px 11px", borderRadius: 999, color: c.sub }}>{d.name}</button>
+              ))}
+            </div>
+            <button onClick={() => setReqOpen(false)} style={{ marginTop: 8, background: "none", border: "none", fontFamily: body, fontSize: 12, fontWeight: 700, color: c.faint, cursor: "pointer" }}>Cancel</button>
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 10, fontFamily: body, fontSize: 11, color: c.faint }}><ShieldCheck size={11} color="#3E7C57" /> Managers add or remove members for their own department.</div>
+        {editing ? (
+          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <button onClick={() => setEditing(false)} style={{ flex: 1, background: c.pine, border: "none", borderRadius: 12, padding: "11px 0", fontFamily: body, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8", cursor: "pointer" }}>Save changes</button>
+            <button onClick={cancelEdit} style={{ background: c.card, border: "1px solid " + c.line, borderRadius: 12, padding: "11px 18px", fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.sub, cursor: "pointer" }}>Cancel</button>
+          </div>
+        ) : (
+          <button onClick={startEdit} style={{ marginTop: 16, width: "100%", background: c.card, border: "1px solid " + c.line, borderRadius: 12, padding: "11px 0", fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.pine, cursor: "pointer" }}>Edit profile</button>
+        )}
+        <button onClick={onAdmin} style={{ marginTop: 10, width: "100%", background: c.secure, border: "none", borderRadius: 12, padding: "11px 0", fontFamily: body, fontWeight: 700, fontSize: 13.5, color: "#F5F1E8", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}><ShieldCheck size={15} color={c.secureHi} /> Admin console</button>
+        <div style={{ textAlign: "center", marginTop: 20, fontFamily: body, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: c.faint }}>Powered by CommonGround</div>
+      </div>
+    </div>
+  );
+}
+
+function ReceiptsScreen({ item, back }) {
+  const [reminded, setReminded] = useState(false);
+  const total = item.readBy.length + item.notYet.length;
+  const ack = !!item.requireAck;
+  const Row = ({ name, seen }) => {
+    const p = personByName(name);
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: "1px solid " + c.line }}>
+        <Avatar name={name} size={34} bg={seen ? c.pine2 : c.faint} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: body, fontWeight: 700, fontSize: 13.5, color: c.ink }}>{name}</div>
+          <div style={{ fontFamily: body, fontSize: 11.5, color: c.faint }}>{p ? p.role + " \u00b7 " + p.loc : "Staff"}</div>
+        </div>
+        {seen
+          ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontFamily: body, fontSize: 11, fontWeight: 700, color: "#3E7C57" }}><Check size={13} strokeWidth={3} />{ack ? "Acknowledged" : "Read"}</span>
+          : <span style={{ fontFamily: body, fontSize: 11, fontWeight: 700, color: c.honey }}>Not yet</span>}
+      </div>
+    );
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: c.paper }}>
+      <div style={{ background: c.pine, padding: "14px 16px 18px", color: "#F5F1E8" }}>
+        <button onClick={back} style={{ background: "none", border: "none", color: "rgba(245,241,232,0.75)", display: "flex", alignItems: "center", gap: 3, fontFamily: body, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 12 }}><ChevronLeft size={16} /> Back</button>
+        <div style={{ fontFamily: body, fontSize: 11.5, opacity: 0.7, marginBottom: 3 }}>{ack ? "Acknowledgments" : "Read receipts"} \u00b7 {item.audience}</div>
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 18, lineHeight: 1.2 }}>{item.title}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12 }}>
+          <div style={{ flex: 1, height: 7, background: "rgba(245,241,232,0.18)", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ width: Math.round((item.readBy.length / total) * 100) + "%", height: "100%", background: c.secureHi }} />
+          </div>
+          <span style={{ fontFamily: body, fontSize: 12, fontWeight: 700 }}>{item.readBy.length}/{total} {ack ? "acked" : "read"}</span>
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px 20px" }}>
+        {item.notYet.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+            <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: c.ink }}>{ack ? "Not yet acknowledged" : "Not yet seen"} ({item.notYet.length})</div>
+            <button onClick={() => setReminded(true)} disabled={reminded} style={{ display: "flex", alignItems: "center", gap: 5, background: reminded ? "none" : c.honey, border: "none", borderRadius: 999, padding: reminded ? 0 : "5px 11px", fontFamily: body, fontWeight: 700, fontSize: 11.5, color: reminded ? c.sub : "#fff", cursor: reminded ? "default" : "pointer" }}>{reminded ? <><Check size={12} strokeWidth={3} />Reminder sent</> : <><Bell size={12} />Remind them</>}</button>
+          </div>
+        )}
+        {item.notYet.map((n) => <Row key={n} name={n} seen={false} />)}
+        <div style={{ fontFamily: display, fontWeight: 700, fontSize: 13.5, color: c.ink, margin: "18px 0 8px" }}>{ack ? "Acknowledged" : "Read"} ({item.readBy.length})</div>
+        {item.readBy.map((n) => <Row key={n} name={n} seen={true} />)}
+      </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { id: "home", label: "Home", icon: Home }, { id: "groups", label: "Groups", icon: Users },
+  { id: "messages", label: "Chats", icon: MessageCircle }, { id: "people", label: "People", icon: Search },
+  { id: "me", label: "Me", icon: User },
+];
+
+function App() {
+  const [onboarded, setOnboarded] = useState(false);
+  const [tab, setTab] = useState("home");
+  const [joined, setJoined] = useState(new Set(["cars", "pickle", "sports"]));
+  const [openGroup, setOpenGroup] = useState(null);
+  const [openPerson, setOpenPerson] = useState(null);
+  const [openThread, setOpenThread] = useState(null);
+  const [secure, setSecure] = useState(false);
+  const [openAdmin, setOpenAdmin] = useState(false);
+  const [openReceipts, setOpenReceipts] = useState(null);
+  const [secureMsgs, setSecureMsgs] = useState(SECURE_SEED);
+  const secureOpen = secureMsgs.filter((m) => m.me).length;
+  const chatUnread = THREADS.reduce((a, t) => a + t.unread, 0) + secureOpen;
+  const [posts, setPosts] = useState(SEED_POSTS);
+  const [requests, setRequests] = useState([]);
+  const toggle = (id) => setJoined((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const addPost = (p) => setPosts((prev) => [p, ...prev]);
+  const addRequest = (r) => setRequests((prev) => [...prev, r]);
+  const messagePerson = (person, interestName) => setOpenThread({ name: person.name, seedInterest: interestName });
+  const titles = { home: "The Break Room", groups: "Groups", messages: "Messages", people: "Directory", me: "Profile" };
+  const subtitle = { home: "Specialty Orthopedic Group", groups: "Find your people", messages: "", people: "200 teammates, 5 locations", me: "" };
+  const hideHeader = openGroup || openPerson;
+  const fullOverlay = openReceipts ? <ReceiptsScreen item={openReceipts} back={() => setOpenReceipts(null)} /> : openAdmin ? <AuditLog back={() => setOpenAdmin(false)} /> : secure ? <SecureScreen back={() => setSecure(false)} msgs={secureMsgs} setMsgs={setSecureMsgs} /> : openThread ? <ThreadDetail thread={openThread} seedInterest={openThread.seedInterest} back={() => setOpenThread(null)} /> : null;
+  return (
+    <div style={{ minHeight: "100vh", background: c.paper, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, fontFamily: body }}>
+      <style>{"@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400..700&display=swap'); *::-webkit-scrollbar{width:0;height:0}"}</style>
+      <div style={{ width: 400, maxWidth: "100%", height: 780, background: c.paper, borderRadius: 34, overflow: "hidden", boxShadow: "0 24px 60px rgba(28,27,22,0.28)", border: "1px solid rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", position: "relative" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px 2px", fontFamily: body, fontSize: 12.5, fontWeight: 700, color: (secure || openAdmin || !onboarded) ? "#F5F1E8" : c.ink, background: (secure || openAdmin || !onboarded) ? c.pine : "transparent" }}>
+          <span>9:41</span><span style={{ display: "flex", gap: 4, alignItems: "center", opacity: 0.7 }}><span>••••</span><Bell size={12} /></span>
+        </div>
+        {!onboarded ? (
+          <div style={{ flex: 1, overflow: "hidden" }}><Onboarding done={(dest) => { setOnboarded(true); if (typeof dest === "string") setTab(dest); }} /></div>
+        ) : fullOverlay ? (<div style={{ flex: 1, overflow: "hidden" }}>{fullOverlay}</div>) : (
+          <>
+            {!hideHeader && (<div style={{ padding: "8px 16px 12px" }}><div style={{ fontFamily: display, fontWeight: 800, fontSize: 25, color: c.ink, letterSpacing: "-0.02em", lineHeight: 1 }}>{titles[tab]}</div>{subtitle[tab] && <div style={{ fontFamily: body, fontSize: 12.5, color: c.faint, marginTop: 3 }}>{subtitle[tab]}</div>}</div>)}
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {openGroup ? <GroupDetail group={openGroup} joined={joined} toggle={toggle} back={() => setOpenGroup(null)} openPerson={(p) => { setOpenGroup(null); setOpenPerson(p); }} />
+                : openPerson ? <PersonDetail person={openPerson} myTags={joined} back={() => setOpenPerson(null)} onMessage={(p, name) => messagePerson(p, name)} />
+                : (
+                  <>
+                    {tab === "home" && <HomeScreen posts={posts} addPost={addPost} onReceipts={setOpenReceipts} />}
+                    {tab === "groups" && <GroupsScreen joined={joined} toggle={toggle} open={setOpenGroup} requests={requests} addRequest={addRequest} />}
+                    {tab === "messages" && <MessagesScreen open={setOpenThread} openSecure={() => setSecure(true)} secureOpen={secureOpen} />}
+                    {tab === "people" && <DirectoryScreen myTags={joined} openPerson={setOpenPerson} />}
+                    {tab === "me" && <ProfileScreen joined={joined} onAdmin={() => setOpenAdmin(true)} />}
+                  </>
+                )}
+            </div>
+            <div style={{ display: "flex", borderTop: "1px solid " + c.line, background: c.card, paddingBottom: 6 }}>
+              {TABS.map((t) => {
+                const active = tab === t.id && !openGroup && !openPerson; const Icon = t.icon;
+                return (<button key={t.id} onClick={() => { setTab(t.id); setOpenGroup(null); setOpenPerson(null); }} style={{ flex: 1, background: "none", border: "none", cursor: "pointer", padding: "9px 0 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? c.pine : c.faint }}><div style={{ position: "relative" }}><Icon size={21} strokeWidth={active ? 2.5 : 2} />{t.id === "messages" && chatUnread > 0 && <span style={{ position: "absolute", top: -4, right: -9, background: c.honey, color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 9, minWidth: 15, height: 15, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>{chatUnread}</span>}</div><span style={{ fontFamily: body, fontSize: 10.5, fontWeight: active ? 700 : 500 }}>{t.label}</span></button>);
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
