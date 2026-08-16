@@ -10521,6 +10521,16 @@ function Eb({
           cursor: "pointer"
         },
         children: "Sign out"
+      }), (0, i.jsx)("div", {
+        style: {
+          textAlign: "center",
+          marginTop: 10,
+          fontFamily: p,
+          fontSize: 10.5,
+          color: d.faint,
+          letterSpacing: "0.03em"
+        },
+        children: "build 2026-08-16 · 4"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12378,7 +12388,9 @@ function zb({
         let T = await (await navigator.serviceWorker.register("sw.js")).pushManager.getSubscription();
         if (T && e && e.id) {
           let U = T.toJSON();
-          await F.from("push_subscriptions").upsert({
+          let {
+            error: pushClaimErr
+          } = await F.from("push_subscriptions").upsert({
             endpoint: T.endpoint,
             profile_id: e.id,
             p256dh: U.keys.p256dh,
@@ -12387,7 +12399,17 @@ function zb({
             last_seen: new Date().toISOString()
           }, {
             onConflict: "endpoint"
-          })
+          });
+          if (pushClaimErr) {
+            S && Dr("Notifications: " + (pushClaimErr.message || "could not register this device"))
+          } else {
+            let {
+              data: pushOwnRow
+            } = await F.from("push_subscriptions").select("endpoint").eq("endpoint", T.endpoint);
+            if (S && (!pushOwnRow || !pushOwnRow.length)) {
+              Dr("This device's notifications are still registered to another account. Turn notifications off and back on to claim it.")
+            }
+          }
         }
         S && Ja(T ? "on" : "off")
       } catch (L) {
