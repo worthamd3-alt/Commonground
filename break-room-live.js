@@ -10530,7 +10530,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-16 · 4"
+        children: "build 2026-08-16 · 5"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12390,15 +12390,11 @@ function zb({
           let U = T.toJSON();
           let {
             error: pushClaimErr
-          } = await F.from("push_subscriptions").upsert({
-            endpoint: T.endpoint,
-            profile_id: e.id,
-            p256dh: U.keys.p256dh,
-            auth: U.keys.auth,
-            label: Wp() ? "iPhone" : "Computer",
-            last_seen: new Date().toISOString()
-          }, {
-            onConflict: "endpoint"
+          } = await F.rpc("claim_push_device", {
+            p_endpoint: T.endpoint,
+            p_p256dh: U.keys.p256dh,
+            p_auth: U.keys.auth,
+            p_label: Wp() ? "iPhone" : "Computer"
           });
           if (pushClaimErr) {
             S && Dr("Notifications: " + (pushClaimErr.message || "could not register this device"))
@@ -12437,15 +12433,11 @@ function zb({
       let U = T.toJSON(),
         {
           error: N
-        } = await F.from("push_subscriptions").upsert({
-          endpoint: T.endpoint,
-          profile_id: e.id,
-          p256dh: U.keys.p256dh,
-          auth: U.keys.auth,
-          label: Wp() ? "iPhone" : "Computer",
-          last_seen: new Date().toISOString()
-        }, {
-          onConflict: "endpoint"
+        } = await F.rpc("claim_push_device", {
+          p_endpoint: T.endpoint,
+          p_p256dh: U.keys.p256dh,
+          p_auth: U.keys.auth,
+          p_label: Wp() ? "iPhone" : "Computer"
         });
       if (N) {
         Dr(N.message);
