@@ -9897,7 +9897,7 @@ function Eb({
               fontSize: 13,
               opacity: .85
             },
-            children: _.filter(q => C.indexOf(q.id) !== -1).map(q => q.name).join(" \xB7 ") || v && v.dept || "SOG"
+            children: _.filter(q => C.indexOf(q.id) !== -1).map(q => q.name).join(" \xB7 ") || "No department yet"
           }), (0, i.jsx)("div", {
             style: {
               fontFamily: p,
@@ -12376,6 +12376,19 @@ function zb({
       }
       try {
         let T = await (await navigator.serviceWorker.register("sw.js")).pushManager.getSubscription();
+        if (T && e && e.id) {
+          let U = T.toJSON();
+          await F.from("push_subscriptions").upsert({
+            endpoint: T.endpoint,
+            profile_id: e.id,
+            p256dh: U.keys.p256dh,
+            auth: U.keys.auth,
+            label: Wp() ? "iPhone" : "Computer",
+            last_seen: new Date().toISOString()
+          }, {
+            onConflict: "endpoint"
+          })
+        }
         S && Ja(T ? "on" : "off")
       } catch (L) {
         S && (Ja("unsupported"), Dr(String(L.message || L)))
@@ -12383,7 +12396,7 @@ function zb({
     })(), () => {
       S = !1
     }
-  }, []);
+  }, [e && e.id]);
   let Nv = async () => {
     Dr("");
     try {
