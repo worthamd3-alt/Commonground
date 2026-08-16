@@ -6535,6 +6535,10 @@ var Tb = [{
 
 function Rb({
   back: e,
+  deptList: deptRows = [],
+  addDept: onAddDept = () => {},
+  renameDept: onRenameDept = () => {},
+  retireDept: onRetireDept = () => {},
   people: t = [],
   meId: a = null,
   setPersonRole: r = () => {},
@@ -6596,6 +6600,12 @@ function Rb({
         a: Ct.trim(),
         b: Sa.trim()
       }) : yo(Ct.trim(), Sa.trim()), ka())
+    },
+    [deptDraft, setDeptDraft] = (0, I.useState)(""),
+    [deptEditing, setDeptEditing] = (0, I.useState)(null),
+    saveDeptRow = () => {
+      let nm = deptDraft.trim();
+      nm && (deptEditing ? onRenameDept(deptEditing, nm) : onAddDept(nm), setDeptDraft(""), setDeptEditing(null))
     },
     [Bn, Dn] = (0, I.useState)(!1),
     [wo, zn] = (0, I.useState)(null),
@@ -7375,6 +7385,152 @@ function Rb({
             children: y.active ? "Active" : "Off"
           })]
         }, y.id || M))]
+      }), !Se && (0, i.jsxs)("div", {
+        style: {
+          margin: "0 14px 12px",
+          background: "rgba(245,241,232,0.05)",
+          border: "1px solid rgba(245,241,232,0.1)",
+          borderRadius: 14,
+          padding: 13
+        },
+        children: [(0, i.jsx)("div", {
+          style: {
+            fontFamily: D,
+            fontWeight: 700,
+            fontSize: 13.5,
+            color: "#F5F1E8",
+            marginBottom: 2
+          },
+          children: "Departments"
+        }), (0, i.jsx)("div", {
+          style: {
+            fontFamily: p,
+            fontSize: 11,
+            color: "rgba(245,241,232,0.5)",
+            marginBottom: 12
+          },
+          children: "The list everyone picks from at signup, and the audiences a post can be aimed at. Retiring one keeps its old posts intact."
+        }), (0, i.jsxs)("div", {
+          style: {
+            display: "flex",
+            gap: 8,
+            marginBottom: 12
+          },
+          children: [(0, i.jsx)("input", {
+            value: deptDraft,
+            onChange: ev => setDeptDraft(ev.target.value),
+            placeholder: deptEditing ? "New name" : "Add a department",
+            style: {
+              flex: 1,
+              background: "rgba(245,241,232,0.08)",
+              border: "1px solid rgba(245,241,232,0.2)",
+              borderRadius: 10,
+              padding: "9px 11px",
+              fontFamily: p,
+              fontSize: 13,
+              color: "#F5F1E8",
+              outline: "none"
+            }
+          }), (0, i.jsx)("button", {
+            onClick: saveDeptRow,
+            style: {
+              background: d.honey,
+              border: "none",
+              borderRadius: 10,
+              padding: "9px 15px",
+              fontFamily: D,
+              fontWeight: 700,
+              fontSize: 13,
+              color: d.pine,
+              cursor: "pointer"
+            },
+            children: deptEditing ? "Save" : "Add"
+          }), deptEditing && (0, i.jsx)("button", {
+            onClick: () => {
+              setDeptEditing(null), setDeptDraft("")
+            },
+            style: {
+              background: "rgba(245,241,232,0.06)",
+              border: "1px solid rgba(245,241,232,0.18)",
+              borderRadius: 10,
+              padding: "9px 13px",
+              fontFamily: p,
+              fontWeight: 700,
+              fontSize: 12.5,
+              color: "rgba(245,241,232,0.75)",
+              cursor: "pointer"
+            },
+            children: "Cancel"
+          })]
+        }), (0, i.jsx)("div", {
+          style: {
+            maxHeight: 220,
+            overflowY: "auto"
+          },
+          children: deptRows.length === 0 ? (0, i.jsx)("div", {
+            style: {
+              fontFamily: p,
+              fontSize: 12,
+              color: "rgba(245,241,232,0.5)",
+              padding: "6px 0"
+            },
+            children: "No departments yet."
+          }) : deptRows.map(dr => (0, i.jsxs)("div", {
+            style: {
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "8px 0",
+              borderBottom: "1px solid rgba(245,241,232,0.08)"
+            },
+            children: [(0, i.jsx)("div", {
+              style: {
+                flex: 1,
+                minWidth: 0,
+                fontFamily: p,
+                fontWeight: 600,
+                fontSize: 12.5,
+                color: "#F5F1E8",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              },
+              children: dr.name
+            }), (0, i.jsx)("button", {
+              onClick: () => {
+                setDeptEditing(dr.id), setDeptDraft(dr.name)
+              },
+              style: {
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                fontFamily: p,
+                fontSize: 11,
+                fontWeight: 700,
+                color: "rgba(245,241,232,0.85)",
+                textDecoration: "underline"
+              },
+              children: "Rename"
+            }), (0, i.jsx)("button", {
+              onClick: () => {
+                window.confirm("Retire " + dr.name + "? It stops appearing for new posts and signups. Old posts stay.") && onRetireDept(dr.id)
+              },
+              style: {
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                fontFamily: p,
+                fontSize: 11,
+                fontWeight: 700,
+                color: "#E9A08A",
+                textDecoration: "underline"
+              },
+              children: "Retire"
+            })]
+          }, dr.id))
+        })]
       }), !Se && (0, i.jsxs)("div", {
         style: {
           margin: "0 14px 12px",
@@ -10530,7 +10686,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-16 · 5"
+        children: "build 2026-08-16 · 6"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12326,6 +12482,26 @@ function zb({
     error: L
   }) => {
     L && ot(L.message), Wt()
+  }), addDeptRow = S => F.from("departments").insert({
+    name: S,
+    active: !0,
+    sort: 900
+  }).then(({
+    error: L
+  }) => {
+    L && ot(L.message), gl()
+  }), renameDeptRow = (S, L) => F.from("departments").update({
+    name: L
+  }).eq("id", S).then(({
+    error: T
+  }) => {
+    T && ot(T.message), gl()
+  }), retireDeptRow = S => F.from("departments").update({
+    active: !1
+  }).eq("id", S).then(({
+    error: L
+  }) => {
+    L && ot(L.message), gl()
   }), [pl, hl] = (0, I.useState)(!1), [Io, Fd] = (0, I.useState)(Zk), Od = Io.filter(S => S.me).length, ml = Qk.reduce((S, L) => S + L.unread, 0) + Od, [Bd, y] = (0, I.useState)([]), [M, Z] = (0, I.useState)(""), G = !!(t && t.role === "admin"), [nt, Fv] = (0, I.useState)([]), [Dd, zd] = (0, I.useState)([]), gl = (0, I.useCallback)(async () => {
     let {
       data: S
@@ -12807,7 +12983,11 @@ function zb({
     questions: ul,
     addQ: fl,
     editQ: Br,
-    removeQ: Pd
+    removeQ: Pd,
+    deptList: nt,
+    addDept: addDeptRow,
+    renameDept: renameDeptRow,
+    retireDept: retireDeptRow
   }) : x ? (0, i.jsx)(Ab, {
     back: () => w(!1),
     msgs: Io,
