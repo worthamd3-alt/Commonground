@@ -3629,7 +3629,7 @@ function wb({
       },
       children: [{
         k: null,
-        label: "All"
+        label: "All posts"
       }, {
         k: "everyone",
         label: "Everyone"
@@ -10686,7 +10686,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-16 · 6"
+        children: "build 2026-08-16 · 7"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
