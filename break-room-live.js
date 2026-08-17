@@ -10728,7 +10728,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 9"
+        children: "build 2026-08-17 · 10"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12559,7 +12559,7 @@ function zb({
     error: L
   }) => {
     L && ot(L.message), gl()
-  }), [pl, hl] = (0, I.useState)(!1), [Io, Fd] = (0, I.useState)(Zk), Od = Io.filter(S => S.me).length, ml = Fr.reduce((S, L) => S + (L.unread || 0), 0) + Od, [Bd, y] = (0, I.useState)([]), [M, Z] = (0, I.useState)(""), G = !!(t && t.role === "admin"), [nt, Fv] = (0, I.useState)([]), [Dd, zd] = (0, I.useState)([]), gl = (0, I.useCallback)(async () => {
+  }), [pl, hl] = (0, I.useState)(!1), [Io, Fd] = (0, I.useState)(Zk), Od = Io.filter(S => S.me).length, ml = Fr.reduce((S, L) => S + (L.unread || 0), 0), [Bd, y] = (0, I.useState)([]), [M, Z] = (0, I.useState)(""), G = !!(t && t.role === "admin"), [nt, Fv] = (0, I.useState)([]), [Dd, zd] = (0, I.useState)([]), gl = (0, I.useCallback)(async () => {
     let {
       data: S
     } = await F.from("departments").select("id, name, sort").eq("active", !0).order("sort");
