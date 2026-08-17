@@ -10686,7 +10686,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-16 · 7"
+        children: "build 2026-08-17 · 8"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12735,17 +12735,22 @@ function zb({
     let {
       data: S,
       error: L
-    } = await F.from("feed_posts").select("id, body, audience, audience_dept, created_at, author_id, departments(name), profiles(display_name, dept)").order("created_at", {
+    } = await F.from("feed_posts").select("id, body, audience, audience_dept, created_at, author_id, departments(name), profiles(display_name, department_members(department_id))").order("created_at", {
       ascending: !1
     }).limit(60);
     if (L) {
       Z(L.message);
       return
     }
+    let deptNameById = {};
+    nt.forEach(dRow => {
+      deptNameById[dRow.id] = dRow.name
+    });
+    let authorDepts = pr => ((pr && pr.department_members || []).map(mRow => deptNameById[mRow.department_id]).filter(Boolean).join(" \xB7 ")) || "SOG";
     Z(""), y((S || []).map(T => ({
       id: T.id,
       author: T.profiles && T.profiles.display_name || "Someone",
-      dept: T.profiles && T.profiles.dept || "SOG",
+      dept: authorDepts(T.profiles),
       audience: T.departments && T.departments.name || "Everyone",
       audienceDeptId: T.audience_dept || null,
       time: Mp(T.created_at),
@@ -12753,7 +12758,7 @@ function zb({
       mine: T.author_id === (e && e.id),
       canDelete: T.author_id === (e && e.id) || G
     })))
-  }, [e, G]);
+  }, [e, G, nt]);
   (0, I.useEffect)(() => {
     Zn();
     let S = setInterval(Zn, 5e3);
