@@ -10108,11 +10108,13 @@ function Eb({
     It = K,
     [$, me] = (0, I.useState)(!1),
     [ie, We] = (0, I.useState)({
+      name: "",
       home: "",
       school: "",
       ask: ""
     }),
     [Rr, Pn] = (0, I.useState)({
+      name: "",
       home: "",
       school: "",
       ask: ""
@@ -10120,11 +10122,12 @@ function Eb({
     [go, Er] = (0, I.useState)("");
   (0, I.useEffect)(() => {
     We({
+      name: v && v.display_name || "",
       home: v && v.home_base || "",
       school: v && v.school || "",
       ask: v && v.ask_about || ""
     })
-  }, [v && v.home_base, v && v.school, v && v.ask_about]);
+  }, [v && v.display_name, v && v.home_base, v && v.school, v && v.ask_about]);
   let yo = () => {
       Pn(ie), me(!0)
     },
@@ -10132,7 +10135,12 @@ function Eb({
       We(Rr), me(!1)
     },
     On = async () => {
-      if (Er(""), await r({
+      if (Er(""), !ie.name.trim()) {
+        Er("Your name can't be blank.");
+        return
+      }
+      if (await r({
+          display_name: ie.name.trim(),
           home_base: ie.home,
           school: ie.school,
           ask_about: ie.ask
@@ -10142,10 +10150,15 @@ function Eb({
       }
       me(!1)
     }, Se = {
+      name: "Your name as coworkers know it",
       home: "Oxford, Mississippi",
       school: "Where you went",
       ask: "What you could talk about all day"
     }, Ha = [{
+      k: "name",
+      icon: hn,
+      label: "Name"
+    }, {
       k: "home",
       icon: ln,
       label: "Home base"
@@ -10270,7 +10283,7 @@ function Eb({
               fontWeight: 700,
               fontSize: 21
             },
-            children: v && v.display_name || mo
+            children: ie.name || v && v.display_name || mo
           }), (0, i.jsx)("div", {
             style: {
               fontFamily: p,
@@ -10910,7 +10923,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 13"
+        children: "build 2026-08-17 · 14"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -11995,6 +12008,11 @@ function Db() {
             value: a,
             onChange: A => r(A.target.value),
             placeholder: "Your name",
+            name: "br-display-name",
+            id: "br-display-name",
+            autoComplete: "off",
+            autoCorrect: "off",
+            spellCheck: !1,
             style: k
           }), (0, i.jsx)("select", {
             value: o,
