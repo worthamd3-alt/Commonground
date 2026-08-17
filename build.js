@@ -6,6 +6,11 @@
 // break-room-live.js is the source of truth. app-live.html is a vendor shell
 // (React, Supabase, Lucide) with the app's own code spliced between the
 // /*APP-START*/ and /*APP-END*/ markers. Never hand-edit app-live.html.
+//
+// The app body is the TAIL of the bundle's IIFE: it shares scope with the
+// vendor code and ends with the `})();` that closes it. Minifying it in place
+// renames its declarations to short names that collide with vendor ones, so
+// the minified build wraps the app in its own IIFE to keep those names local.
 
 const fs = require('fs');
 const HTML = 'app-live.html', SRC = 'break-room-live.js';
@@ -19,17 +24,16 @@ if (i === -1 || j === -1) { console.error('Markers not found in ' + HTML); proce
 let src = fs.readFileSync(SRC, 'utf8');
 if (src.startsWith('/*')) src = src.slice(src.indexOf('*/') + 2).replace(/^\n+/, '');
 
-let body = src.replace(/\n+$/, '');
+let body = src.replace(/\s+$/, '');
 if (!readable) {
-  // The app body closes the bundle's IIFE, so add a matching opener for the
-  // minifier, then strip it back off. Keeps the deployed file small while
-  // break-room-live.js stays readable.
-  const wrapper = '(()=>{';
-  const out = require('esbuild').transformSync(wrapper + body, { minify: true, legalComments: 'none' }).code;
-  if (out.slice(0, wrapper.length) !== wrapper) {
-    console.error('Minifier changed the wrapper; refusing to splice.'); process.exit(1);
+  const CLOSER = '})();';
+  if (body.slice(-CLOSER.length) !== CLOSER) {
+    console.error('Expected the app body to end with the bundle IIFE closer.'); process.exit(1);
   }
-  body = out.slice(wrapper.length);
+  const appOnly = body.slice(0, -CLOSER.length);
+  const scoped = require('esbuild').transformSync('(()=>{' + appOnly + '})();',
+    { minify: true, legalComments: 'none' }).code;
+  body = scoped + '\n' + CLOSER;
 }
 
 const result = html.slice(0, i) + A + '\n' + body + '\n' + html.slice(j);
