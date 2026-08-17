@@ -3489,7 +3489,44 @@ function wb({
     style: {
       padding: "4px 16px 20px"
     },
-    children: [(0, i.jsxs)("div", {
+    children: [Wp() && !Sv() && (0, i.jsxs)("div", {
+      style: {
+        background: d.honeySoft,
+        borderRadius: 14,
+        padding: "12px 13px",
+        marginBottom: 12,
+        display: "flex",
+        gap: 10,
+        alignItems: "flex-start"
+      },
+      children: [(0, i.jsx)(wr, {
+        size: 16,
+        color: "#8A5A12",
+        style: {
+          marginTop: 2,
+          flexShrink: 0
+        }
+      }), (0, i.jsxs)("div", {
+        children: [(0, i.jsx)("div", {
+          style: {
+            fontFamily: D,
+            fontWeight: 700,
+            fontSize: 13.5,
+            color: "#7A5418",
+            marginBottom: 3
+          },
+          children: "Add this to your home screen"
+        }), (0, i.jsx)("div", {
+          style: {
+            fontFamily: p,
+            fontSize: 12.5,
+            color: "#8A5A12",
+            lineHeight: 1.45
+          },
+          children: "iPhones only send notifications to apps saved to the home screen. Tap the Share button below, choose Add to Home Screen, then open The Break Room from there."
+        })]
+      })]
+    }), (0, i.jsxs)("div", {
       style: {
         background: d.card,
         border: "1px solid " + d.line,
@@ -10873,7 +10910,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 11"
+        children: "build 2026-08-17 · 12"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
