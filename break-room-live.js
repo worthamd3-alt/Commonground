@@ -10910,7 +10910,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 12"
+        children: "build 2026-08-17 · 13"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -13318,33 +13318,11 @@ function zb({
         flexDirection: "column",
         position: "relative"
       },
-      children: [(0, i.jsxs)("div", {
+      children: [(0, i.jsx)("div", {
         style: {
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 20px 2px",
-          fontFamily: p,
-          fontSize: 12.5,
-          fontWeight: 700,
-          color: x || _ || !r ? "#F5F1E8" : d.ink,
+          padding: "8px 0 0",
           background: x || _ || !r ? d.pine : "transparent"
-        },
-        children: [(0, i.jsx)("span", {
-          children: "9:41"
-        }), (0, i.jsxs)("span", {
-          style: {
-            display: "flex",
-            gap: 4,
-            alignItems: "center",
-            opacity: .7
-          },
-          children: [(0, i.jsx)("span", {
-            children: "\u2022\u2022\u2022\u2022"
-          }), (0, i.jsx)(wr, {
-            size: 12
-          })]
-        })]
+        }
       }), r ? ah ? (0, i.jsx)("div", {
         style: {
           flex: 1,
