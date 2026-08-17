@@ -6808,6 +6808,7 @@ function Rb({
   removeQ: On
 }) {
   let Se = l === "manager",
+    showMockSections = !1,
     Ha = "Front Desk / Appointments",
     [vo, q] = (0, I.useState)(!1),
     [ke, je] = (0, I.useState)(null),
@@ -7278,7 +7279,7 @@ function Rb({
         flex: 1,
         overflowY: "auto"
       },
-      children: [(0, i.jsxs)("div", {
+      children: [showMockSections && (0, i.jsxs)("div", {
         style: {
           margin: "0 14px 12px",
           background: "rgba(245,241,232,0.05)",
@@ -7755,7 +7756,7 @@ function Rb({
             })]
           }, dr.id))
         })]
-      }), !Se && (0, i.jsxs)("div", {
+      }), showMockSections && !Se && (0, i.jsxs)("div", {
         style: {
           margin: "0 14px 12px",
           background: "rgba(245,241,232,0.05)",
@@ -9770,7 +9771,7 @@ function Rb({
             })]
           }, y.id))
         })]
-      }), !Se && (0, i.jsxs)("div", {
+      }), showMockSections && !Se && (0, i.jsxs)("div", {
         style: {
           margin: "0 14px 12px",
           background: "rgba(245,241,232,0.05)",
@@ -9876,7 +9877,7 @@ function Rb({
             color: d.secureHi
           }), " Every channel uses PHI-safe wording - never a patient name."]
         })]
-      }), !Se && (0, i.jsxs)(i.Fragment, {
+      }), showMockSections && !Se && (0, i.jsxs)(i.Fragment, {
         children: [(0, i.jsx)("div", {
           style: {
             fontFamily: p,
@@ -9911,7 +9912,7 @@ function Rb({
             children: "Filter by patient, sender, date, or action"
           })]
         })]
-      }), (0, i.jsx)("div", {
+      }), showMockSections && (0, i.jsx)("div", {
         style: {
           padding: "0 14px 16px"
         },
@@ -10923,7 +10924,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 14"
+        children: "build 2026-08-17 · 15"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
