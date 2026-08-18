@@ -1802,7 +1802,9 @@ function db({
 function cb({
   anniversaries: e,
   back: t,
-  photoFor: a
+  photoFor: a,
+  wished: alreadyWished = {},
+  onWish: sendWish = null
 }) {
   let r = new Date,
     o = r.getMonth() + 1,
@@ -1950,11 +1952,13 @@ function cb({
               children: [f, " year", f !== 1 ? "s" : "", " with SOG \xB7 ", wd[c.month], " ", c.day]
             })]
           }), (0, i.jsx)("button", {
-            onClick: () => u(h => ({
-              ...h,
-              [c.name]: !0
-            })),
-            disabled: l[c.name],
+            onClick: () => {
+              u(h => ({
+                ...h,
+                [c.name]: !0
+              })), sendWish && sendWish(c.name)
+            },
+            disabled: l[c.name] || alreadyWished[c.name],
             style: {
               border: "none",
               borderRadius: 999,
@@ -1962,15 +1966,15 @@ function cb({
               fontFamily: p,
               fontWeight: 700,
               fontSize: 12,
-              cursor: l[c.name] ? "default" : "pointer",
-              background: l[c.name] ? d.honeySoft : d.honey,
-              color: l[c.name] ? "#8A5A12" : d.pine,
+              cursor: l[c.name] || alreadyWished[c.name] ? "default" : "pointer",
+              background: l[c.name] || alreadyWished[c.name] ? d.honeySoft : d.honey,
+              color: l[c.name] || alreadyWished[c.name] ? "#8A5A12" : d.pine,
               display: "flex",
               alignItems: "center",
               gap: 5,
               flexShrink: 0
             },
-            children: l[c.name] ? (0, i.jsxs)(i.Fragment, {
+            children: l[c.name] || alreadyWished[c.name] ? (0, i.jsxs)(i.Fragment, {
               children: [(0, i.jsx)(dn, {
                 size: 13
               }), "Sent"]
@@ -2092,7 +2096,9 @@ function pb({
   birthdays: e,
   cupcake: t,
   back: a,
-  photoFor: r
+  photoFor: r,
+  wished: alreadyWished = {},
+  onWish: sendWish = null
 }) {
   let o = new Date,
     n = o.getMonth() + 1,
@@ -2238,11 +2244,13 @@ function pb({
             children: [wd[f.month], " ", f.day]
           })]
         }), (0, i.jsx)("button", {
-          onClick: () => c(h => ({
-            ...h,
-            [f.name]: !0
-          })),
-          disabled: u[f.name],
+          onClick: () => {
+            c(h => ({
+              ...h,
+              [f.name]: !0
+            })), sendWish && sendWish(f.name)
+          },
+          disabled: u[f.name] || alreadyWished[f.name],
           style: {
             border: "none",
             borderRadius: 999,
@@ -2250,15 +2258,15 @@ function pb({
             fontFamily: p,
             fontWeight: 700,
             fontSize: 12,
-            cursor: u[f.name] ? "default" : "pointer",
-            background: u[f.name] ? d.honeySoft : d.honey,
-            color: u[f.name] ? "#8A5A12" : d.pine,
+            cursor: u[f.name] || alreadyWished[f.name] ? "default" : "pointer",
+            background: u[f.name] || alreadyWished[f.name] ? d.honeySoft : d.honey,
+            color: u[f.name] || alreadyWished[f.name] ? "#8A5A12" : d.pine,
             display: "flex",
             alignItems: "center",
             gap: 5,
             flexShrink: 0
           },
-          children: u[f.name] ? (0, i.jsxs)(i.Fragment, {
+          children: u[f.name] || alreadyWished[f.name] ? (0, i.jsxs)(i.Fragment, {
             children: [(0, i.jsx)(dn, {
               size: 13
             }), "Sent"]
@@ -3345,8 +3353,18 @@ function Lv({
   p: e,
   spotlight: t,
   onDelete: a,
-  photoFor: r = () => null
+  photoFor: r = () => null,
+  myName: cmName = mo,
+  addComment: onAddComment = null,
+  deleteComment: onDeleteComment = null
 }) {
+  let cmList = e.comments || [],
+    [cmOpen, setCmOpen] = (0, I.useState)(!1),
+    [cmDraft, setCmDraft] = (0, I.useState)(""),
+    cmSend = () => {
+      let txt = cmDraft.trim();
+      txt && onAddComment && (onAddComment(e.id, txt), setCmDraft(""))
+    };
   return (0, i.jsxs)("div", {
     style: {
       background: d.card,
@@ -3438,6 +3456,142 @@ function Lv({
         textDecoration: "underline"
       },
       children: e.mine ? "Delete" : "Remove (admin)"
+    }), onAddComment && (0, i.jsxs)("div", {
+      style: {
+        marginTop: 12,
+        paddingTop: 11,
+        borderTop: "1px solid " + d.line
+      },
+      children: [!cmOpen && (0, i.jsx)("button", {
+        onClick: () => setCmOpen(!0),
+        style: {
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          fontFamily: p,
+          fontSize: 12,
+          fontWeight: 700,
+          color: cmList.length ? d.pine : d.faint
+        },
+        children: cmList.length ? cmList.length + (cmList.length === 1 ? " comment" : " comments") : "Add a comment"
+      }), cmOpen && (0, i.jsxs)(i.Fragment, {
+        children: [cmList.map(cm => (0, i.jsxs)("div", {
+          style: {
+            display: "flex",
+            gap: 9,
+            marginBottom: 10
+          },
+          children: [(0, i.jsx)(Ne, {
+            name: cm.author,
+            size: 26,
+            bg: d.pine2,
+            src: r(cm.author)
+          }), (0, i.jsxs)("div", {
+            style: {
+              flex: 1,
+              minWidth: 0
+            },
+            children: [(0, i.jsxs)("div", {
+              style: {
+                display: "flex",
+                alignItems: "baseline",
+                gap: 6
+              },
+              children: [(0, i.jsx)("span", {
+                style: {
+                  fontFamily: p,
+                  fontWeight: 700,
+                  fontSize: 12.5,
+                  color: d.ink
+                },
+                children: cm.author
+              }), (0, i.jsx)("span", {
+                style: {
+                  fontFamily: p,
+                  fontSize: 11,
+                  color: d.faint
+                },
+                children: cm.time
+              }), cm.canDelete && onDeleteComment && (0, i.jsx)("button", {
+                onClick: () => onDeleteComment(cm.id),
+                style: {
+                  marginLeft: "auto",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontFamily: p,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  color: d.faint,
+                  textDecoration: "underline"
+                },
+                children: "Delete"
+              })]
+            }), (0, i.jsx)("div", {
+              style: {
+                fontFamily: p,
+                fontSize: 13,
+                color: d.ink,
+                lineHeight: 1.4,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word"
+              },
+              children: cm.text
+            })]
+          })]
+        }, cm.id)), (0, i.jsxs)("div", {
+          style: {
+            display: "flex",
+            gap: 8,
+            alignItems: "center"
+          },
+          children: [(0, i.jsx)(Ne, {
+            name: cmName,
+            size: 26,
+            bg: d.honey,
+            src: r(cmName)
+          }), (0, i.jsx)("input", {
+            value: cmDraft,
+            onChange: ev => setCmDraft(ev.target.value),
+            onKeyDown: ev => {
+              ev.key === "Enter" && cmSend()
+            },
+            placeholder: "Write a comment\u2026",
+            style: {
+              flex: 1,
+              border: "1px solid " + d.line,
+              borderRadius: 999,
+              padding: "9px 13px",
+              fontFamily: p,
+              fontSize: 16,
+              color: d.ink,
+              background: d.paper,
+              outline: "none",
+              minWidth: 0
+            }
+          }), (0, i.jsx)("button", {
+            onClick: cmSend,
+            style: {
+              background: d.pine,
+              border: "none",
+              borderRadius: 999,
+              width: 34,
+              height: 34,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0
+            },
+            children: (0, i.jsx)(fn, {
+              size: 15,
+              color: "#F5F1E8"
+            })
+          })]
+        })]
+      })]
     })]
   })
 }
@@ -3448,6 +3602,8 @@ function wb({
   posts: a,
   addPost: r,
   onDeletePost: o,
+  addComment: onAddComment = null,
+  deleteComment: onDeleteComment = null,
   onReceipts: n,
   acked: s,
   onOpenPolicy: l,
@@ -3692,7 +3848,10 @@ function wb({
       p: It[0],
       spotlight: !0,
       onDelete: o,
-      photoFor: w
+      photoFor: w,
+      myName: e,
+      addComment: onAddComment,
+      deleteComment: onDeleteComment
     }) : (0, i.jsx)("div", {
       style: {
         marginTop: 12,
@@ -3730,7 +3889,10 @@ function wb({
     }, $.id)), It.slice(1).map(($, me) => (0, i.jsx)(Lv, {
       p: $,
       onDelete: o,
-      photoFor: w
+      photoFor: w,
+      myName: e,
+      addComment: onAddComment,
+      deleteComment: onDeleteComment
     }, $.id || "p" + me)), wv.map(($, me) => {
       let ie = s.has(me),
         We = !!$.requireAck,
@@ -10924,7 +11086,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 15"
+        children: "build 2026-08-17 · 17"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -12670,7 +12832,9 @@ function zb({
     }, []);
   (0, I.useEffect)(() => {
     Lo()
-  }, [Lo]);
+  }, [Lo]), (0, I.useEffect)(() => {
+    loadMyWishes()
+  }, [e && e.id]);
   let ae = async S => {
     let {
       error: L
@@ -12807,6 +12971,9 @@ function zb({
     error: L
   }) => {
     L && ot(L.message), gl()
+  }), [myWishes, setMyWishes] = (0, I.useState)({
+    birthday: {},
+    anniversary: {}
   }), [pl, hl] = (0, I.useState)(!1), [Io, Fd] = (0, I.useState)(Zk), Od = Io.filter(S => S.me).length, ml = Fr.reduce((S, L) => S + (L.unread || 0), 0), [Bd, y] = (0, I.useState)([]), [M, Z] = (0, I.useState)(""), G = !!(t && t.role === "admin"), [nt, Fv] = (0, I.useState)([]), [Dd, zd] = (0, I.useState)([]), gl = (0, I.useCallback)(async () => {
     let {
       data: S
@@ -13027,6 +13194,99 @@ function zb({
       return
     }
     zd(T => T.filter(U => U !== S)), gl()
+  }, loadMyWishes = async () => {
+    if (!e) return;
+    let {
+      data: wRows
+    } = await F.from("wishes").select("kind, recipient_name").eq("sender_id", e.id).eq("year", new Date().getFullYear());
+    let next = {
+      birthday: {},
+      anniversary: {}
+    };
+    (wRows || []).forEach(wRow => {
+      next[wRow.kind] && (next[wRow.kind][wRow.recipient_name] = !0)
+    }), setMyWishes(next)
+  }, sendWishTo = async (kindKey, personName) => {
+    setMyWishes(prev => ({
+      ...prev,
+      [kindKey]: {
+        ...prev[kindKey],
+        [personName]: !0
+      }
+    }));
+    let {
+      error: wErr
+    } = await F.from("wishes").insert({
+      kind: kindKey,
+      recipient_name: personName,
+      sender_id: e.id,
+      year: new Date().getFullYear()
+    });
+    if (wErr && wErr.code !== "23505") return;
+    let match = Md.filter(pr => Tr(pr.display_name) === Tr(personName) && pr.id !== e.id)[0];
+    if (!match) return;
+    let note = kindKey === "birthday" ? "Happy birthday, " + Kp(personName) + "!" : "Congratulations on your work anniversary, " + Kp(personName) + "!",
+      {
+        data: mine
+      } = await F.from("thread_participants").select("thread_id").eq("profile_id", e.id),
+      ids = (mine || []).map(rw => rw.thread_id),
+      threadId = null;
+    if (ids.length) {
+      let {
+        data: shared
+      } = await F.from("thread_participants").select("thread_id").eq("profile_id", match.id).in("thread_id", ids);
+      shared && shared.length && (threadId = shared[0].thread_id)
+    }
+    if (!threadId) {
+      threadId = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, ch => {
+        let rn = Math.random() * 16 | 0;
+        return (ch === "x" ? rn : rn & 3 | 8).toString(16)
+      });
+      let {
+        error: tErr
+      } = await F.from("threads").insert({
+        id: threadId,
+        created_by: e.id
+      });
+      if (tErr) return;
+      let {
+        error: pErr
+      } = await F.from("thread_participants").insert([{
+        thread_id: threadId,
+        profile_id: e.id
+      }, {
+        thread_id: threadId,
+        profile_id: match.id
+      }]);
+      if (pErr) return
+    }
+    await F.from("messages").insert({
+      thread_id: threadId,
+      sender_id: e.id,
+      body: note
+    }), ba()
+  }, addFeedComment = async (S, L) => {
+    let {
+      error: T
+    } = await F.from("post_comments").insert({
+      post_id: S,
+      author_id: e.id,
+      body: L
+    });
+    if (T) {
+      Z(T.message);
+      return
+    }
+    Zn()
+  }, deleteFeedComment = async S => {
+    let {
+      error: L
+    } = await F.from("post_comments").delete().eq("id", S);
+    if (L) {
+      Z(L.message);
+      return
+    }
+    Zn()
   }, Kv = async S => {
     let {
       error: L
@@ -13051,6 +13311,22 @@ function zb({
     nt.forEach(dRow => {
       deptNameById[dRow.id] = dRow.name
     });
+    let postIds = (S || []).map(pRow => pRow.id),
+      commentsByPost = {};
+    if (postIds.length) {
+      let {
+        data: cmRows
+      } = await F.from("post_comments").select("id, post_id, body, created_at, author_id, profiles(display_name)").in("post_id", postIds).order("created_at");
+      (cmRows || []).forEach(cmRow => {
+        (commentsByPost[cmRow.post_id] = commentsByPost[cmRow.post_id] || []).push({
+          id: cmRow.id,
+          author: cmRow.profiles && cmRow.profiles.display_name || "Someone",
+          text: cmRow.body,
+          time: Mp(cmRow.created_at),
+          canDelete: cmRow.author_id === (e && e.id) || G
+        })
+      })
+    }
     let authorDepts = pr => ((pr && pr.department_members || []).map(mRow => deptNameById[mRow.department_id]).filter(Boolean).join(" \xB7 ")) || "SOG";
     Z(""), y((S || []).map(T => ({
       id: T.id,
@@ -13060,6 +13336,7 @@ function zb({
       audienceDeptId: T.audience_dept || null,
       time: Mp(T.created_at),
       text: T.body,
+      comments: commentsByPost[T.id] || [],
       mine: T.author_id === (e && e.id),
       canDelete: T.author_id === (e && e.id) || G
     })))
@@ -13222,7 +13499,9 @@ function zb({
   }, s1 = m || b, ah = $n ? (0, i.jsx)(cb, {
     anniversaries: ko,
     back: () => bo(!1),
-    photoFor: ft
+    photoFor: ft,
+    wished: myWishes.anniversary,
+    onWish: nm => sendWishTo("anniversary", nm)
   }) : pl ? (0, i.jsx)(ub, {
     items: Nt,
     back: () => hl(!1)
@@ -13234,7 +13513,9 @@ function zb({
     birthdays: se,
     cupcake: Hn,
     back: () => ke(!1),
-    photoFor: ft
+    photoFor: ft,
+    wished: myWishes.birthday,
+    onWish: nm => sendWishTo("birthday", nm)
   }) : Ha ? (0, i.jsx)(vb, {
     items: Ut,
     catalog: It,
@@ -13411,6 +13692,8 @@ function zb({
               posts: Bd,
               addPost: Yv,
               onDeletePost: Kv,
+              addComment: addFeedComment,
+              deleteComment: deleteFeedComment,
               onReceipts: P,
               acked: W,
               onOpenPolicy: (S, L) => X({
