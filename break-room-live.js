@@ -1446,6 +1446,183 @@ function lb({
   })
 }
 
+function CodesScreen({
+  back: t
+}) {
+  let a = [{
+    name: "Code Red",
+    meaning: "Fire",
+    color: "#C0392B"
+  }, {
+    name: "Code Blue",
+    meaning: "Cardiac arrest",
+    color: "#2C6FA8"
+  }, {
+    name: "Code Yellow",
+    meaning: "Hazardous material spill",
+    color: "#D4A017"
+  }, {
+    name: "Code Gray",
+    meaning: "Inclement weather",
+    color: "#7A7A72"
+  }, {
+    name: "Code Black",
+    meaning: "Bomb threat",
+    color: "#1C1B16"
+  }, {
+    name: "Code Adam",
+    meaning: "Missing person",
+    color: "#B5651D"
+  }, {
+    name: "Code Silver",
+    meaning: "Combative person",
+    color: "#8A8F98"
+  }, {
+    name: "Code White",
+    meaning: "Person with a weapon",
+    color: "#5B6B7A"
+  }, {
+    name: "Code Green",
+    meaning: "All clear",
+    color: "#3E7C57"
+  }];
+  return (0, i.jsxs)("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+      background: d.paper
+    },
+    children: [(0, i.jsxs)("div", {
+      style: {
+        background: d.pine,
+        padding: "14px 16px 18px",
+        color: "#F5F1E8"
+      },
+      children: [(0, i.jsxs)("button", {
+        onClick: t,
+        style: {
+          background: "none",
+          border: "none",
+          color: "rgba(245,241,232,0.75)",
+          display: "flex",
+          alignItems: "center",
+          gap: 3,
+          fontFamily: p,
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: "pointer",
+          marginBottom: 12
+        },
+        children: [(0, i.jsx)(Me, {
+          size: 16
+        }), " Back"]
+      }), (0, i.jsxs)("div", {
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 8
+        },
+        children: [(0, i.jsx)(St, {
+          size: 20,
+          color: d.honey
+        }), (0, i.jsx)("span", {
+          style: {
+            fontFamily: D,
+            fontWeight: 800,
+            fontSize: 22
+          },
+          children: "Emergency Codes"
+        })]
+      }), (0, i.jsx)("div", {
+        style: {
+          fontFamily: p,
+          fontSize: 12.5,
+          opacity: .82,
+          marginTop: 4
+        },
+        children: "What you hear called overhead, and what it means."
+      })]
+    }), (0, i.jsxs)("div", {
+      style: {
+        flex: 1,
+        overflowY: "auto",
+        padding: "14px 16px 22px"
+      },
+      children: [(0, i.jsx)("div", {
+        style: {
+          background: d.card,
+          border: "1px solid " + d.line,
+          borderRadius: 16,
+          overflow: "hidden"
+        },
+        children: a.map((r, o) => (0, i.jsxs)("div", {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "13px 14px",
+            borderTop: o === 0 ? "none" : "1px solid " + d.line
+          },
+          children: [(0, i.jsx)("span", {
+            style: {
+              width: 14,
+              height: 14,
+              borderRadius: 999,
+              background: r.color,
+              border: "1px solid rgba(28,27,22,0.18)",
+              flexShrink: 0
+            }
+          }), (0, i.jsxs)("div", {
+            style: {
+              minWidth: 0
+            },
+            children: [(0, i.jsx)("div", {
+              style: {
+                fontFamily: D,
+                fontWeight: 700,
+                fontSize: 15,
+                color: d.ink,
+                lineHeight: 1.2
+              },
+              children: r.name
+            }), (0, i.jsx)("div", {
+              style: {
+                fontFamily: p,
+                fontSize: 13,
+                color: d.sub,
+                marginTop: 2
+              },
+              children: r.meaning
+            })]
+          })]
+        }, r.name))
+      }), (0, i.jsx)("div", {
+        style: {
+          marginTop: 14,
+          background: d.honeySoft,
+          borderRadius: 14,
+          padding: "12px 14px",
+          fontFamily: p,
+          fontSize: 12.5,
+          color: d.ink,
+          lineHeight: 1.5
+        },
+        children: "This page is here so you already know these before you hear one. In an actual event, follow your location's emergency plan and your supervisor's direction."
+      }), (0, i.jsx)("div", {
+        style: {
+          marginTop: 10,
+          fontFamily: p,
+          fontSize: 11.5,
+          color: d.faint,
+          lineHeight: 1.45,
+          textAlign: "center"
+        },
+        children: "Official SOG code list. Questions go to your director."
+      })]
+    })]
+  })
+}
 function ub({
   items: e,
   back: t
@@ -10256,7 +10433,8 @@ function Eb({
   leaveDept: P = () => {},
   deptErr: W = "",
   myVotes: K = {},
-  voteQ: B = () => {}
+  voteQ: B = () => {},
+  onOpenCodes: openCodesScreen = () => {}
 }) {
   let X = kd.filter(q => e.has(q.id) || q.subs && q.subs.some(ke => e.has(q.id + ":" + ke))),
     ne = (0, I.useRef)(null),
@@ -11061,6 +11239,29 @@ function Eb({
           size: 15,
           color: d.secureHi
         }), " Admin console"]
+      }), (0, i.jsxs)("button", {
+        onClick: openCodesScreen,
+        style: {
+          marginTop: 10,
+          width: "100%",
+          background: d.card,
+          border: "1px solid " + d.line,
+          borderRadius: 12,
+          padding: "11px 0",
+          fontFamily: p,
+          fontWeight: 700,
+          fontSize: 13.5,
+          color: d.pine,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 7
+        },
+        children: [(0, i.jsx)(St, {
+          size: 15,
+          color: d.honey
+        }), " Emergency codes"]
       }), (0, i.jsx)("button", {
         onClick: x,
         style: {
@@ -11086,7 +11287,7 @@ function Eb({
           color: d.faint,
           letterSpacing: "0.03em"
         },
-        children: "build 2026-08-17 · 17"
+        children: "build 2026-08-18 · 18"
       }), (0, i.jsx)("button", {
         onClick: m,
         style: {
@@ -13496,7 +13697,9 @@ function zb({
     messages: "",
     people: Ud ? Ud + (Ud === 1 ? " teammate" : " teammates") : "",
     me: ""
-  }, s1 = m || b, ah = $n ? (0, i.jsx)(cb, {
+  }, [codesOpen, setCodesOpen] = (0, I.useState)(!1), s1 = m || b, ah = codesOpen ? (0, i.jsx)(CodesScreen, {
+    back: () => setCodesOpen(!1)
+  }) : $n ? (0, i.jsx)(cb, {
     anniversaries: ko,
     back: () => bo(!1),
     photoFor: ft,
@@ -13749,6 +13952,7 @@ function zb({
               setPersonActive: Zp,
               photoFor: ft
             }), n === "me" && (0, i.jsx)(Eb, {
+              onOpenCodes: () => setCodesOpen(!0),
               myVotes: cl,
               voteQ: Ed,
               deptErr: Bv,
