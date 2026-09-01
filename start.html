@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>The Break Room — Quick start</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Hanken+Grotesk:wght@400..700&display=swap');
+
+  :root{
+    --paper:#EFEBE2; --card:#FFFFFF; --ink:#1C1B16; --sub:#77746A;
+    --pine:#143028; --honey:#E09A38; --line:#DDD8CC;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Hanken Grotesk',system-ui,sans-serif; font-size:16px; line-height:1.55;
+    padding:0 20px calc(48px + env(safe-area-inset-bottom,0px));
+  }
+  main{max-width:34rem; margin:0 auto}
+
+  header{padding:44px 0 26px}
+  h1{
+    font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:800;
+    font-size:clamp(2rem,9vw,2.75rem); line-height:1.02; letter-spacing:-.02em; margin:0;
+  }
+  header p{margin:10px 0 0; color:var(--sub); font-size:1.0625rem}
+
+  h2{
+    font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:800;
+    font-size:1.25rem; margin:34px 0 10px; letter-spacing:-.01em;
+  }
+  p{margin:0 0 12px}
+
+  /* Setup is the one genuine sequence on the page, so it gets the numbers. */
+  ol{list-style:none; counter-reset:s; margin:0; padding:0}
+  ol li{
+    counter-increment:s; position:relative; padding:0 0 20px 46px;
+    border-left:2px solid var(--line); margin-left:14px;
+  }
+  ol li:last-child{border-left-color:transparent; padding-bottom:4px}
+  ol li::before{
+    content:counter(s); position:absolute; left:-15px; top:-2px;
+    width:28px; height:28px; border-radius:50%;
+    background:var(--pine); color:var(--paper);
+    font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:.875rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  ol strong{display:block; font-weight:700; font-size:1.0625rem}
+  ol span{color:var(--sub); font-size:.9375rem}
+
+  .link{
+    display:block; background:var(--pine); color:#F5F1E8; text-decoration:none;
+    border-radius:14px; padding:16px 18px; margin:4px 0 8px; word-break:break-all;
+    font-weight:700; font-size:1rem;
+  }
+  .link em{
+    display:block; font-style:normal; font-weight:400; font-size:.8125rem;
+    color:var(--honey); margin-bottom:4px; word-break:normal;
+  }
+
+  ul{margin:0; padding:0; list-style:none}
+  ul li{padding:11px 0; border-bottom:1px solid var(--line)}
+  ul li:last-child{border-bottom:0}
+
+  .warn{
+    background:#FFF; border:1px solid var(--honey); border-radius:14px;
+    padding:16px 18px; margin:16px 0 0;
+  }
+  .warn strong{font-family:'Bricolage Grotesque',sans-serif; font-weight:800}
+
+  footer{margin-top:40px; padding-top:18px; border-top:1px solid var(--line); color:var(--sub); font-size:.875rem}
+</style>
+</head>
+<body>
+<main>
+
+  <header>
+    <h1>Two minutes,<br>then it's yours.</h1>
+    <p>The Break Room is where SOG announcements, birthdays, and department news live. Here's how to get in.</p>
+  </header>
+
+  <a class="link" href="https://worthamd3-alt.github.io/Commonground/app-live.html">
+    <em>Open this on your iPhone, in Safari</em>
+    worthamd3-alt.github.io/Commonground/app-live.html
+  </a>
+
+  <h2>Setting up</h2>
+  <ol>
+    <li>
+      <strong>Open the link in Safari</strong>
+      <span>Not Chrome, and not from inside another app. Safari.</span>
+    </li>
+    <li>
+      <strong>Tap Share, then Add to Home Screen</strong>
+      <span>This is the step people skip. Notifications only reach you from the home screen version — a browser tab will never buzz.</span>
+    </li>
+    <li>
+      <strong>Open it from your home screen and sign up</strong>
+      <span>Use your work email. Say yes when it asks about notifications.</span>
+    </li>
+  </ol>
+
+  <h2>Worth trying</h2>
+  <ul>
+    <li>Add a photo and fill in your profile</li>
+    <li>Post something to the feed</li>
+    <li>Join your department</li>
+    <li>Answer the question on the home screen</li>
+    <li>Pick a side in the blood drive</li>
+  </ul>
+
+  <div class="warn">
+    <strong>Never post patient information.</strong>
+    <p style="margin:6px 0 0">No names, no room numbers, nothing that could identify someone. This app is for the people who work here, not the people we treat.</p>
+  </div>
+
+  <h2>What I need from you</h2>
+  <p>Tell me what was confusing, what broke, and what you'd never use. Screenshots help more than descriptions. Being blunt now is cheaper than fixing it after two hundred people are on it.</p>
+
+  <footer>Text Worth with anything you find.</footer>
+
+</main>
+</body>
+</html>
